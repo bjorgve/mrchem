@@ -23,8 +23,12 @@
  * <https://mrchem.readthedocs.io/>
  */
 
-#include "chemistry_utils.h"
+#include "MRCPP/Gaussians"
+
 #include "Nucleus.h"
+#include "chemistry_utils.h"
+#include "qmfunctions/Density.h"
+#include "qmfunctions/density_utils.h"
 #include "utils/math_utils.h"
 
 namespace mrchem {
@@ -34,7 +38,7 @@ namespace mrchem {
  * @param[in] nucs the set of nuclei
  *
  */
-double compute_nuclear_repulsion(const Nuclei &nucs) {
+double chemistry::compute_nuclear_repulsion(const Nuclei &nucs) {
     int nNucs = nucs.size();
     double E_nuc = 0.0;
     for (int i = 0; i < nNucs; i++) {
@@ -53,12 +57,12 @@ double compute_nuclear_repulsion(const Nuclei &nucs) {
 }
 
 /** @breif computes the nuclear density as a sum of narrow Gaussians */
-Density compute_nuclear_density(double prec, const Nuclei &nucs, double alpha) {
+Density chemistry::compute_nuclear_density(double prec, const Nuclei &nucs, double alpha) {
 
     auto beta = std::pow(alpha / MATHCONST::pi, 3.0 / 2.0);
     auto gauss = mrcpp::GaussExp<3>();
 
-    for (int i = 0; i < nucs.size(); i++) {
+    for (auto i = 0; i < nucs.size(); i++) {
         const auto &nuc_i = nucs[i];
         const auto Z_i = nuc_i.getCharge();
         const auto &R_i = nuc_i.getCoord();

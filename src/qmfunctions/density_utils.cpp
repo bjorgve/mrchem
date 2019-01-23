@@ -289,6 +289,7 @@ void density::compute_XY(double prec, Density &rho, OrbitalVector &Phi, OrbitalV
 
 void density::compute(double prec, Density &rho, mrcpp::GaussExp<3> &dens_exp, int spin) {
     if (not rho.hasReal()) rho.alloc(NUMBER::Real);
+    mrcpp::build_grid(rho.real(), dens_exp);
     mrcpp::project(prec, rho.real(), dens_exp);
 }
 

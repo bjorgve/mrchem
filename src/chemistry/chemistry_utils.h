@@ -26,10 +26,11 @@
 #pragma once
 
 #include "chemistry_fwd.h"
+#include "qmfunctions/qmfunction_fwd.h"
 
 namespace mrchem {
-
+namespace chemistry {
 double compute_nuclear_repulsion(const Nuclei &nucs);
 Density compute_nuclear_density(double prec, const Nuclei &nucs, double alpha);
-
-} //namespace mrchem
+} // namespace chemistry
+} // namespace mrchem

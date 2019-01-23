@@ -1,5 +1,6 @@
 target_sources(mrchem PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/CoulombPotential.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/HartreePotential.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CoulombPotentialD1.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CoulombPotentialD2.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ExchangePotential.cpp

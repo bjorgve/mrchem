@@ -3,6 +3,7 @@
 #include "CoulombPotential.h"
 #include "CoulombPotentialD1.h"
 #include "CoulombPotentialD2.h"
+#include "HartreePotential.h"
 #include "qmoperators/RankZeroTensorOperator.h"
 
 /** @class CoulombOperator
@@ -29,6 +30,11 @@ public:
     }
     CoulombOperator(mrcpp::PoissonOperator *P, OrbitalVector *Phi, OrbitalVector *X, OrbitalVector *Y)
             : potential(new CoulombPotentialD2(P, Phi, X, Y)) {
+        RankZeroTensorOperator &J = (*this);
+        J = *this->potential;
+    }
+    CoulombOperator(mrcpp::PoissonOperator *P, OrbitalVector *Phi, const Nuclei &nucs)
+            : potential(new HartreePotential(P, Phi, nucs)) {
         RankZeroTensorOperator &J = (*this);
         J = *this->potential;
     }

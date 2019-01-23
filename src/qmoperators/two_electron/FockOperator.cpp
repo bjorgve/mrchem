@@ -46,7 +46,7 @@ FockOperator::FockOperator(KineticOperator *t,
         , ext(ext) {}
 
 /** @brief build the Fock operator once all contributions are in place
- * 
+ *
  */
 void FockOperator::build() {
     this->T = RankZeroTensorOperator();
@@ -131,7 +131,7 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const ComplexMatrix &F) {
     // Nuclear part
     if (this->nuc != nullptr) {
         Nuclei &nucs = this->nuc->getNuclei();
-        E_nuc = compute_nuclear_repulsion(nucs);
+        E_nuc = chemistry::compute_nuclear_repulsion(nucs);
         if (this->ext != nullptr) {
             E_nex = this->ext->trace(nucs).real();
             E_nuc += E_nex;
@@ -178,8 +178,9 @@ ComplexMatrix FockOperator::operator()(OrbitalVector &bra, OrbitalVector &ket) {
     if (v.size() > 0) V += v(bra, ket);
     t_pot.stop();
     Printer::printDouble(0, "Potential part", t_pot.getWallTime());
+    println(0, T) println(0, V)
 
-    t_tot.stop();
+        t_tot.stop();
     Printer::printFooter(0, t_tot, 2);
     return T + V;
 }
