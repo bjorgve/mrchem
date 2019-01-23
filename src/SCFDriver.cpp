@@ -379,12 +379,12 @@ void SCFDriver::setup() {
 
     // Setting up Fock operator
     T = new KineticOperator(*(useDerivative(diff_kin)));
-    V = new NuclearOperator(*nuclei, nuc_prec);
+    // V = new NuclearOperator(*nuclei, nuc_prec);
     // All cases need kinetic energy and nuclear potential
     fock = new FockOperator(T, V);
     // For Hartree, HF and DFT we need the coulomb part
     if (wf_method == "Hartree" or wf_method == "HF" or wf_method == "DFT") {
-        J = new CoulombOperator(P, phi);
+        J = new CoulombOperator(P, phi, *nuclei);
         fock->setCoulombOperator(J);
     }
     // For HF we need the full HF exchange
