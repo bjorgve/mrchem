@@ -30,5 +30,6 @@
 namespace mrchem {
 
 double compute_nuclear_repulsion(const Nuclei &nucs);
+Density compute_nuclear_density(double prec, const Nuclei &nucs, double alpha);
 
 } //namespace mrchem

@@ -30,7 +30,7 @@
 namespace mrchem {
 
 /** @brief computes the repulsion self energy of a set of nuclei
- * 
+ *
  * @param[in] nucs the set of nuclei
  *
  */
@@ -50,6 +50,24 @@ double compute_nuclear_repulsion(const Nuclei &nucs) {
         }
     }
     return E_nuc;
+}
+
+/** @breif computes the nuclear density as a sum of narrow Gaussians */
+Density compute_nuclear_density(double prec, const Nuclei &nucs, double alpha) {
+
+    auto beta = std::pow(alpha / MATHCONST::pi, 3.0 / 2.0);
+    auto gauss = mrcpp::GaussExp<3>();
+
+    for (int i = 0; i < nucs.size(); i++) {
+        const auto &nuc_i = nucs[i];
+        const auto Z_i = nuc_i.getCharge();
+        const auto &R_i = nuc_i.getCoord();
+        auto gauss_f = mrcpp::GaussFunc<3>(alpha, beta * Z_i, R_i);
+        gauss.append(gauss_f);
+    }
+    Density rho(false);
+    density::compute(prec, rho, gauss, NUMBER::Real);
+    return rho;
 }
 
 } //namespace mrchem
