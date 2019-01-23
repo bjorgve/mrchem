@@ -49,14 +49,20 @@ void initialize(int argc, char **argv) {
     // Initialize world box
     int min_scale = Input.get<int>("MRA.min_scale");
     int max_scale = Input.get<int>("MRA.max_scale");
-    vector<int> corner = Input.getIntVec("MRA.corner");
-    vector<int> boxes = Input.getIntVec("MRA.boxes");
+    std::vector<int> corner = Input.getIntVec("MRA.corner");
+    std::vector<int> boxes = Input.getIntVec("MRA.boxes");
+    auto scaling_factor = Input.getDblVec("MRA.scaling_factor");
+    auto periodic = Input.get<bool>("MRA.periodic");
+
     std::array<int, 3> c_idx;
     std::array<int, 3> n_bxs;
+    std::array<double, 3> sf;
     std::copy_n(corner.begin(), 3, c_idx.begin());
     std::copy_n(boxes.begin(), 3, n_bxs.begin());
-    BoundingBox<3> world(min_scale, c_idx, n_bxs);
+    std::copy_n(scaling_factor.begin(), 3, sf.begin());
 
+    // BoundingBox<3> world(min_scale, c_idx, n_bxs);
+    BoundingBox<3> world(sf, periodic);
     // Initialize scaling basis
     int order = Input.get<int>("MRA.order");
     string btype = Input.get<string>("MRA.basis_type");
