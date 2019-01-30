@@ -178,9 +178,8 @@ ComplexMatrix FockOperator::operator()(OrbitalVector &bra, OrbitalVector &ket) {
     if (v.size() > 0) V += v(bra, ket);
     t_pot.stop();
     Printer::printDouble(0, "Potential part", t_pot.getWallTime());
-    println(0, T) println(0, V)
 
-        t_tot.stop();
+    t_tot.stop();
     Printer::printFooter(0, t_tot, 2);
     return T + V;
 }

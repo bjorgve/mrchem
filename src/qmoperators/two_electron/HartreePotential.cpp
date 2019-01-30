@@ -43,9 +43,7 @@ void HartreePotential::setupDensity(double prec) {
     Density rho_el(false);
     density::compute(prec, rho_el, Phi, DENSITY::Total);
     Density rho_nuc = chemistry::compute_nuclear_density(this->apply_prec, this->nuclei, 1.0e4);
-    println(0, "Not zero? " << rho_nuc.integrate());
     qmfunction::add(rho, 1.0, rho_el, -1.0, rho_nuc, -1.0);
-    println(0, "is this zero? " << rho.integrate());
 
     timer.stop();
     double t = timer.getWallTime();
