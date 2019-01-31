@@ -29,8 +29,9 @@ namespace mrchem {
 
 HartreePotential::HartreePotential(PoissonOperator *P, OrbitalVector *Phi, const Nuclei &nucs)
         : CoulombPotential(P)
-        , nuclei(nucs)
-        , orbitals(Phi) {}
+        , orbitals(Phi) {
+    this->nuclei = nucs;
+}
 
 void HartreePotential::setupDensity(double prec) {
     if (hasDensity()) return;
@@ -42,8 +43,12 @@ void HartreePotential::setupDensity(double prec) {
     Timer timer;
     Density rho_el(false);
     density::compute(prec, rho_el, Phi, DENSITY::Total);
-    Density rho_nuc = chemistry::compute_nuclear_density(this->apply_prec, this->nuclei, 1.0e4);
+    Density rho_nuc(false);
+    chemistry::compute_nuclear_density(this->apply_prec, rho_nuc, this->nuclei, 1.0e6);
     qmfunction::add(rho, 1.0, rho_el, -1.0, rho_nuc, -1.0);
+    println(0, "nuc_charge " << rho_nuc.integrate());
+    println(0, "el_charge  " << rho_el.integrate());
+    println(0, "tot_charge " << rho.integrate());
 
     timer.stop();
     double t = timer.getWallTime();

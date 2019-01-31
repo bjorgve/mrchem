@@ -57,8 +57,7 @@ double chemistry::compute_nuclear_repulsion(const Nuclei &nucs) {
 }
 
 /** @breif computes the nuclear density as a sum of narrow Gaussians */
-Density chemistry::compute_nuclear_density(double prec, const Nuclei &nucs, double alpha) {
-
+void chemistry::compute_nuclear_density(double prec, Density &rho, const Nuclei &nucs, double alpha) {
     auto beta = std::pow(alpha / MATHCONST::pi, 3.0 / 2.0);
     auto gauss = mrcpp::GaussExp<3>();
 
@@ -66,12 +65,25 @@ Density chemistry::compute_nuclear_density(double prec, const Nuclei &nucs, doub
         const auto &nuc_i = nucs[i];
         const auto Z_i = nuc_i.getCharge();
         const auto &R_i = nuc_i.getCoord();
-        auto gauss_f = mrcpp::GaussFunc<3>(alpha, beta * Z_i, R_i);
+        auto gauss_f = mrcpp::GaussFunc<3>(alpha, Z_i*beta, R_i);
         gauss.append(gauss_f);
     }
-    Density rho(false);
     density::compute(prec, rho, gauss, NUMBER::Real);
-    return rho;
+}
+
+/** @breif computes the nuclear density as a sum of narrow Gaussians */
+double chemistry::compute_nuclear_self_repulsion(const Nuclei &nucs, double alpha) {
+    auto beta = std::pow(alpha / MATHCONST::pi, 3.0 / 2.0);
+
+    auto self_rep = 0.0;
+    for (auto i = 0; i < nucs.size(); i++) {
+        const auto &nuc_i = nucs[i];
+        const auto Z_i = nuc_i.getCharge();
+        const auto &R_i = nuc_i.getCoord();
+        auto gauss_f = mrcpp::GaussFunc<3>(alpha, beta, R_i);
+        self_rep += Z_i*Z_i*gauss_f.calcCoulombEnergy(gauss_f);
+    }
+    return self_rep;
 }
 
 } //namespace mrchem

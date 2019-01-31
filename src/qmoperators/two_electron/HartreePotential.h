@@ -28,7 +28,6 @@ public:
     virtual ~HartreePotential() = default;
 
 private:
-    Nuclei nuclei;
     OrbitalVector *orbitals; ///< Unperturbed orbitals defining the ground-state electron density
 
     void setupDensity(double prec);

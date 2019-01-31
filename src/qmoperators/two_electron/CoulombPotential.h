@@ -1,5 +1,6 @@
 #pragma once
 
+#include "chemistry/Nucleus.h"
 #include "qmfunctions/Density.h"
 #include "qmoperators/one_electron/QMPotential.h"
 
@@ -31,11 +32,14 @@ public:
     friend class CoulombOperator;
 
 protected:
+    Nuclei nuclei{};
     Density density;                 ///< Ground-state electron density
     mrcpp::PoissonOperator *poisson; ///< Operator used to compute the potential
 
     Density &getDensity() { return this->density; }
     bool hasDensity() const { return (this->density.squaredNorm() < 0.0) ? false : true; }
+
+    const Nuclei &getNuclei() const { return this->nuclei; }
 
     void setup(double prec);
     void clear();
