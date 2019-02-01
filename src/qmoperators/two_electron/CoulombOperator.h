@@ -35,8 +35,8 @@ public:
         RankZeroTensorOperator &J = (*this);
         J = *this->potential;
     }
-    CoulombOperator(mrcpp::PoissonOperator *P, OrbitalVector *Phi, const Nuclei &nucs)
-            : potential(new HartreePotential(P, Phi, nucs)) {
+    CoulombOperator(mrcpp::PoissonOperator *P, OrbitalVector *Phi, const Nuclei &nucs, double nuc_prec)
+            : potential(new HartreePotential(P, Phi, nucs, nuc_prec)) {
         RankZeroTensorOperator &J = (*this);
         J = *this->potential;
     }
@@ -44,6 +44,7 @@ public:
         if (this->potential != nullptr) delete this->potential;
     }
 
+    double getNucPrec() const { return this->potential->getNucPrec(); }
     const Nuclei &getNuclei() const { return this->potential->getNuclei(); }
 
     Density &getDensity() {
@@ -54,8 +55,9 @@ public:
     ComplexDouble trace(OrbitalVector &Phi) { return 0.5 * RankZeroTensorOperator::trace(Phi); }
     ComplexDouble trace(const Nuclei &nucs) {
         QMFunction &V = *this->potential;
+        double nuc_prec = this->potential->getNucPrec();
         Density rho_nuc(false);
-        chemistry::compute_nuclear_density(this->potential->prec(), rho_nuc, nucs, 1.0e6);
+        chemistry::compute_nuclear_density(this->potential->prec(), rho_nuc, nucs, 1.0 / nuc_prec);
         return 0.5 * qmfunction::dot(V, rho_nuc);
     }
 

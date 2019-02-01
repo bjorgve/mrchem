@@ -384,7 +384,7 @@ void SCFDriver::setup() {
     fock = new FockOperator(T, V);
     // For Hartree, HF and DFT we need the coulomb part
     if (wf_method == "Hartree" or wf_method == "HF" or wf_method == "DFT") {
-        J = new CoulombOperator(P, phi, *nuclei);
+        J = new CoulombOperator(P, phi, *nuclei, nuc_prec);
         fock->setCoulombOperator(J);
     }
     // For HF we need the full HF exchange

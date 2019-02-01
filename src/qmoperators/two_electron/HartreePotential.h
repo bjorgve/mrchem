@@ -24,7 +24,7 @@ namespace mrchem {
 
 class HartreePotential final : public CoulombPotential {
 public:
-    HartreePotential(mrcpp::PoissonOperator *P, OrbitalVector *Phi, const Nuclei &nucs);
+    HartreePotential(mrcpp::PoissonOperator *P, OrbitalVector *Phi, const Nuclei &nucs, double prec);
     virtual ~HartreePotential() = default;
 
 private:
