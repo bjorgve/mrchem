@@ -27,10 +27,11 @@ namespace mrchem {
  * QMPotential is uninitialized at this point and will be computed at setup.
  */
 
-HartreePotential::HartreePotential(PoissonOperator *P, OrbitalVector *Phi, const Nuclei &nucs)
+HartreePotential::HartreePotential(PoissonOperator *P, OrbitalVector *Phi, const Nuclei &nucs, double prec)
         : CoulombPotential(P)
         , orbitals(Phi) {
     this->nuclei = nucs;
+    this->nuc_prec = prec;
 }
 
 void HartreePotential::setupDensity(double prec) {
@@ -44,7 +45,7 @@ void HartreePotential::setupDensity(double prec) {
     Density rho_el(false);
     density::compute(prec, rho_el, Phi, DENSITY::Total);
     Density rho_nuc(false);
-    chemistry::compute_nuclear_density(this->apply_prec, rho_nuc, this->nuclei, 1.0e6);
+    chemistry::compute_nuclear_density(this->apply_prec, rho_nuc, this->nuclei, 1.0 / this->nuc_prec);
     qmfunction::add(rho, 1.0, rho_el, -1.0, rho_nuc, -1.0);
     println(0, "nuc_charge " << rho_nuc.integrate());
     println(0, "el_charge  " << rho_el.integrate());

@@ -53,6 +53,7 @@ void initialize(int argc, char **argv) {
     std::vector<int> boxes = Input.getIntVec("MRA.boxes");
     auto scaling_factor = Input.getDblVec("MRA.scaling_factor");
     auto periodic = Input.get<bool>("MRA.periodic");
+    auto root_range = Input.get<int>("MRA.root_range");
 
     std::array<int, 3> c_idx;
     std::array<int, 3> n_bxs;
@@ -61,8 +62,8 @@ void initialize(int argc, char **argv) {
     std::copy_n(boxes.begin(), 3, n_bxs.begin());
     std::copy_n(scaling_factor.begin(), 3, sf.begin());
 
-    BoundingBox<3> world(min_scale, c_idx, n_bxs);
-    //BoundingBox<3> world(sf, periodic);
+    //BoundingBox<3> world(min_scale, c_idx, n_bxs);
+    BoundingBox<3> world(sf, periodic);
     // Initialize scaling basis
     int order = Input.get<int>("MRA.order");
     string btype = Input.get<string>("MRA.basis_type");
@@ -75,10 +76,10 @@ void initialize(int argc, char **argv) {
     // Initialize global MRA
     if (btype == "I") {
         InterpolatingBasis basis(order);
-        MRA = new MultiResolutionAnalysis<3>(world, basis, max_depth);
+        MRA = new MultiResolutionAnalysis<3>(world, basis, max_depth, root_range);
     } else if (btype == "L") {
         LegendreBasis basis(order);
-        MRA = new MultiResolutionAnalysis<3>(world, basis, max_depth);
+        MRA = new MultiResolutionAnalysis<3>(world, basis, max_depth, root_range);
     } else {
         MSG_FATAL("Invalid basis type!");
     }

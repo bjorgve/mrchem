@@ -32,6 +32,7 @@ public:
     friend class CoulombOperator;
 
 protected:
+    double nuc_prec{1.0};
     Nuclei nuclei{};
     Density density;                 ///< Ground-state electron density
     mrcpp::PoissonOperator *poisson; ///< Operator used to compute the potential
@@ -39,6 +40,7 @@ protected:
     Density &getDensity() { return this->density; }
     bool hasDensity() const { return (this->density.squaredNorm() < 0.0) ? false : true; }
 
+    double getNucPrec() const { return this->nuc_prec; }
     const Nuclei &getNuclei() const { return this->nuclei; }
 
     void setup(double prec);

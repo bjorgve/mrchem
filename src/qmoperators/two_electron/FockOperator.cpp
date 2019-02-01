@@ -137,8 +137,9 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const ComplexMatrix &F) {
             E_nuc += E_nex;
         }
     } else if (this->coul != nullptr) {
+        double nuc_prec = this->coul->getNucPrec();
         const Nuclei &nucs = this->coul->getNuclei();
-        E_nuc = 0.5*chemistry::compute_nuclear_self_repulsion(nucs, 1.0e6);
+        E_nuc = 0.5*chemistry::compute_nuclear_self_repulsion(nucs, 1.0 / nuc_prec);
         E_en = this->coul->trace(nucs).real();
     }
 
