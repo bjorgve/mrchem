@@ -130,12 +130,16 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const ComplexMatrix &F) {
 
     // Nuclear part
     if (this->nuc != nullptr) {
-        Nuclei &nucs = this->nuc->getNuclei();
+        const Nuclei &nucs = this->nuc->getNuclei();
         E_nuc = chemistry::compute_nuclear_repulsion(nucs);
         if (this->ext != nullptr) {
             E_nex = this->ext->trace(nucs).real();
             E_nuc += E_nex;
         }
+    } else if (this->coul != nullptr) {
+        const Nuclei &nucs = this->coul->getNuclei();
+        E_nuc = 0.5*chemistry::compute_nuclear_self_repulsion(nucs, 1.0e6);
+        E_en = this->coul->trace(nucs).real();
     }
 
     // Orbital energies
@@ -143,6 +147,8 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const ComplexMatrix &F) {
         double occ = (double)Phi[i].occ();
         E_orb += occ * F(i, i).real();
     }
+
+
 
     // Electronic part
     if (this->nuc != nullptr) E_en = this->nuc->trace(Phi).real();
@@ -156,6 +162,15 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const ComplexMatrix &F) {
     double E_orbxc2 = E_orb - E_xc2;
     E_kin = E_orbxc2 - 2.0 * E_eex - E_en - E_ext;
     E_el = E_orbxc2 - E_eex + E_xc;
+
+    println(0, "E_orb: " << E_orb);
+    println(0, "E_en:  " << E_en);
+    println(0, "E_ee:  " << E_ee);
+    println(0, "E_nuc: " << E_nuc);
+    println(0, "E_xc:  " << E_xc);
+    println(0, "E_xc2: " << E_xc2);
+    double E_tot = E_orb - E_en - E_ee - E_nuc + E_xc - E_xc2;
+    println(0, "TOTAL ENERGY: " << E_tot);
 
     return SCFEnergy{E_nuc, E_el, E_orb, E_kin, E_en, E_ee, E_xc, E_x, E_nex, E_ext};
 }
@@ -178,9 +193,8 @@ ComplexMatrix FockOperator::operator()(OrbitalVector &bra, OrbitalVector &ket) {
     if (v.size() > 0) V += v(bra, ket);
     t_pot.stop();
     Printer::printDouble(0, "Potential part", t_pot.getWallTime());
-    println(0, T) println(0, V)
 
-        t_tot.stop();
+    t_tot.stop();
     Printer::printFooter(0, t_tot, 2);
     return T + V;
 }

@@ -61,8 +61,8 @@ void initialize(int argc, char **argv) {
     std::copy_n(boxes.begin(), 3, n_bxs.begin());
     std::copy_n(scaling_factor.begin(), 3, sf.begin());
 
-    // BoundingBox<3> world(min_scale, c_idx, n_bxs);
-    BoundingBox<3> world(sf, periodic);
+    BoundingBox<3> world(min_scale, c_idx, n_bxs);
+    //BoundingBox<3> world(sf, periodic);
     // Initialize scaling basis
     int order = Input.get<int>("MRA.order");
     string btype = Input.get<string>("MRA.basis_type");
