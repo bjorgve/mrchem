@@ -181,13 +181,13 @@ def setup_keywords(input_dir):
 
     mpi = getkw.Section('mpi')
     # yapf: disable
-    mpi.add_kw('numerically_exact',      'BOOL', False)
-    mpi.add_kw('share_nuclear_potential','BOOL', False)
-    mpi.add_kw('share_coulomb_density',  'BOOL', False)
-    mpi.add_kw('share_coulomb_potential','BOOL', False)
-    mpi.add_kw('share_xc_density',       'BOOL', False)
-    mpi.add_kw('share_xc_potential',     'BOOL', False)
-    mpi.add_kw('shared_memory_size',     'INT', 10000)
+    mpi.add_kw('numerically_exact',       'BOOL', False)
+    mpi.add_kw('share_nuclear_potential', 'BOOL', False)
+    mpi.add_kw('share_coulomb_density',   'BOOL', False)
+    mpi.add_kw('share_coulomb_potential', 'BOOL', False)
+    mpi.add_kw('share_xc_density',        'BOOL', False)
+    mpi.add_kw('share_xc_potential',      'BOOL', False)
+    mpi.add_kw('shared_memory_size',      'INT', 10000)
     # yapf: enable
     top.add_sect(mpi)
 
@@ -199,6 +199,8 @@ def setup_keywords(input_dir):
     mra.add_kw('max_scale',             'INT', 25)
     mra.add_kw('boxes',                 'INT_ARRAY', [1, 1, 1])
     mra.add_kw('corner',                'INT_ARRAY', [0, 0, 0])
+    mra.add_kw('scaling_factor',        'DBL_ARRAY', [1.0, 1.0, 1.0])
+    mra.add_kw('periodic',              'BOOL', False)
     mra.add_kw('center_of_mass',        'BOOL', False)
     mra.add_kw('center_of_charge',      'BOOL', False)
     mra.add_kw('gauge_origin',          'DBL_ARRAY', [0.0, 0.0, 0.0])
