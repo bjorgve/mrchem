@@ -15,6 +15,13 @@ using namespace mrchem;
 
 namespace mrenv {
 
+template <int D> auto *initialize_world(int min_scale, std::array<int, D> &corner, std::array<int, D> &boxes,
+                                        std::array<double, D> sf, bool periodic) {
+
+    if (periodic) return new BoundingBox<D>(sf, periodic);
+    return new BoundingBox<D>(min_scale, corner, boxes);
+}
+
 void initialize(int argc, char **argv) {
     const char *infile = nullptr;
     if (argc == 1) {
@@ -51,11 +58,15 @@ void initialize(int argc, char **argv) {
     int max_scale = input.get<int>("mra.max_scale");
     vector<int> corner = input.getIntVec("mra.corner");
     vector<int> boxes = input.getIntVec("mra.boxes");
+    auto scaling_factor = input.getDblVec("mra.scaling_factor");
+    auto periodic = input.get<bool>("mra.periodic");
     std::array<int, 3> c_idx;
     std::array<int, 3> n_bxs;
+    std::array<double, 3> sf;
     std::copy_n(corner.begin(), 3, c_idx.begin());
     std::copy_n(boxes.begin(), 3, n_bxs.begin());
-    BoundingBox<3> world(min_scale, c_idx, n_bxs);
+    std::copy_n(scaling_factor.begin(), 3, sf.begin());
+    BoundingBox<3> *world = initialize_world<3>(min_scale, c_idx, n_bxs, sf, periodic);
 
     // Initialize scaling basis
     int order = input.get<int>("mra.order");
@@ -69,10 +80,10 @@ void initialize(int argc, char **argv) {
     // Initialize global MRA
     if (btype == "i") {
         InterpolatingBasis basis(order);
-        MRA = new MultiResolutionAnalysis<3>(world, basis, max_depth);
+        MRA = new MultiResolutionAnalysis<3>(*world, basis, max_depth);
     } else if (btype == "l") {
         LegendreBasis basis(order);
-        MRA = new MultiResolutionAnalysis<3>(world, basis, max_depth);
+        MRA = new MultiResolutionAnalysis<3>(*world, basis, max_depth);
     } else {
         MSG_FATAL("Invalid basis type!");
     }
