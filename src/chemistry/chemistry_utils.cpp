@@ -23,8 +23,12 @@
  * <https://mrchem.readthedocs.io/>
  */
 
-#include "chemistry_utils.h"
+#include "MRCPP/Gaussians"
+
 #include "Nucleus.h"
+#include "chemistry_utils.h"
+#include "qmfunctions/Density.h"
+#include "qmfunctions/density_utils.h"
 #include "utils/math_utils.h"
 
 namespace mrchem {
@@ -57,6 +61,24 @@ double chemistry::get_total_charge(const Nuclei &nucs) {
     double charge = 0;
     for (const auto &nuc : nucs) charge += nuc.getCharge();
     return charge;
+}
+
+/** @breif computes the nuclear density as a sum of narrow Gaussians */
+Density chemistry::compute_nuclear_density(double prec, const Nuclei &nucs, double alpha) {
+
+    auto beta = std::pow(alpha / MATHCONST::pi, 3.0 / 2.0);
+    auto gauss = mrcpp::GaussExp<3>();
+
+    for (auto i = 0; i < nucs.size(); i++) {
+        const auto &nuc_i = nucs[i];
+        const auto Z_i = nuc_i.getCharge();
+        const auto &R_i = nuc_i.getCoord();
+        auto gauss_f = mrcpp::GaussFunc<3>(alpha, beta * Z_i, R_i);
+        gauss.append(gauss_f);
+    }
+    Density rho(false);
+    density::compute(prec, rho, gauss);
+    return rho;
 }
 
 } // namespace mrchem
