@@ -101,6 +101,7 @@ protected:
     // World input
     bool center_of_mass;
     bool center_of_charge;
+    bool periodic;
     std::vector<double> gauge;
 
     // Derivative operators

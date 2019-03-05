@@ -65,6 +65,7 @@ SCFDriver::SCFDriver(Getkw &input) {
     gauge = input.getDblVec("mra.gauge_origin");
     center_of_mass = input.get<bool>("mra.center_of_mass");
     center_of_charge = input.get<bool>("mra.center_of_charge");
+    periodic = input.get<bool>("mra.periodic");
 
     diff_kin = input.get<std::string>("derivatives.kinetic");
     diff_orb = input.get<std::string>("derivatives.h_orb");
@@ -300,14 +301,21 @@ void SCFDriver::setup() {
 
     // Setting up Fock operator
     auto &nuclei = molecule->getNuclei();
-    T = std::make_shared<KineticOperator>(useDerivative(diff_kin));
-    V = std::make_shared<NuclearOperator>(nuclei, nuc_prec);
-    // All cases need kinetic energy and nuclear potential
-    fock = std::make_shared<FockOperator>(T, V);
-    // For Hartree, HF and DFT we need the coulomb part
-    if (wf_method == "hartree" or wf_method == "hf" or wf_method == "dft") {
+    T = std::make_shared<KineticOperator>((useDerivative(diff_kin)));
+    // All cases need kinetic energy
+    fock = std::make_shared<FockOperator>(T);
+
+    // For non-periodic Hartree, HF and DFT we need the coulomb and nuclear part
+    if ((wf_method == "hartree" or wf_method == "hf" or wf_method == "dft") and not periodic) {
         J = std::make_shared<CoulombOperator>(P, phi);
-        fock->getCoulombOperator() = J;
+        V = std::make_shared<NuclearOperator>(*nuclei, nuc_prec);
+        fock->setCoulombOperator(J);
+        fock->setNuclearOperator(V);
+    }
+    // For periodic Hartree, HF and DFT we need the hartree potential part
+    if ((wf_method == "hartree" or wf_method == "hf" or wf_method == "dft") and periodic) {
+        J = std::make_shared<CoulombOperator>(P, phi, *nuclei);
+        fock->setCoulombOperator(J);
     }
     // For HF we need the full HF exchange
     if (wf_method == "hf") {
