@@ -124,17 +124,17 @@ void FockOperator::rotate(const ComplexMatrix &U) {
  * by tracing the Fock matrix and subtracting all other contributions.
  */
 SCFEnergy FockOperator::trace(OrbitalVector &Phi, const ComplexMatrix &F) {
-    double E_nuc = 0.0; // Nuclear repulsion
-    double E_el = 0.0;  // Electronic energy
-    double E_orb = 0.0; // Orbital energy
-    double E_kin = 0.0; // Kinetic energy
-    double E_en = 0.0;  // Nuclear-electronic interaction
-    double E_ee = 0.0;  // Electronic repulsion
-    double E_x = 0.0;   // Exact Exchange
-    double E_xc = 0.0;  // Exchange and Correlation
-    double E_xc2 = 0.0; // Trace of the XC operator
-    double E_ext = 0.0; // External field contribution to the electronic energy
-    double E_nex = 0.0; // External field contribution to the nuclear energy
+    auto E_nuc = 0.0; // Nuclear repulsion
+    auto E_el = 0.0;  // Electronic energy
+    auto E_orb = 0.0; // Orbital energy
+    auto E_kin = 0.0; // Kinetic energy
+    auto E_en = 0.0;  // Nuclear-electronic interaction
+    auto E_ee = 0.0;  // Electronic repulsion
+    auto E_x = 0.0;   // Exact Exchange
+    auto E_xc = 0.0;  // Exchange and Correlation
+    auto E_xc2 = 0.0; // Trace of the XC operator
+    auto E_ext = 0.0; // External field contribution to the electronic energy
+    auto E_nex = 0.0; // External field contribution to the nuclear energy
 
     // Nuclear part
     if (this->nuc != nullptr) {
@@ -160,8 +160,8 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const ComplexMatrix &F) {
     if (this->xc != nullptr) E_xc2 = this->xc->trace(Phi).real();
     if (this->ext != nullptr) E_ext = this->ext->trace(Phi).real();
 
-    double E_eex = E_ee + E_x;
-    double E_orbxc2 = E_orb - E_xc2;
+    auto E_eex = E_ee + E_x;
+    auto E_orbxc2 = E_orb - E_xc2;
     E_kin = E_orbxc2 - 2.0 * E_eex - E_en - E_ext;
     E_el = E_orbxc2 - E_eex + E_xc;
 
