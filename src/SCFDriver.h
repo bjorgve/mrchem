@@ -97,6 +97,7 @@ protected:
     int max_scale;
     double rel_prec;
     double nuc_prec;
+    double mock_periodic;
 
     // World input
     bool center_of_mass;
