@@ -31,7 +31,9 @@ HartreePotential::HartreePotential(std::shared_ptr<mrcpp::PoissonOperator> P,
                                    std::shared_ptr<OrbitalVector> Phi,
                                    const Nuclei &nucs)
         : CoulombPotential(P, Phi)
-        , nuclei(nucs) {}
+        , nuclei(nucs) {
+    this->local = false;
+}
 
 void HartreePotential::setupGlobalDensity(double prec) {
     if (hasDensity()) return;
