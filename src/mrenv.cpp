@@ -15,8 +15,12 @@ using namespace mrchem;
 
 namespace mrenv {
 
-template <int D> auto *initialize_world(int min_scale, std::array<int, D> &corner, std::array<int, D> &boxes,
-                                        std::array<double, D> sf, bool periodic) {
+template <int D>
+auto *initialize_world(int min_scale,
+                       std::array<int, D> &corner,
+                       std::array<int, D> &boxes,
+                       std::array<double, D> sf,
+                       bool periodic) {
 
     if (periodic) return new BoundingBox<D>(sf, periodic);
     return new BoundingBox<D>(min_scale, corner, boxes);
@@ -59,7 +63,7 @@ void initialize(int argc, char **argv) {
     vector<int> corner = input.getIntVec("mra.corner");
     vector<int> boxes = input.getIntVec("mra.boxes");
     auto scaling_factor = input.getDblVec("mra.scaling_factor");
-    auto periodic = input.get<bool>("mra.periodic");
+    auto periodic = false; // input.get<bool>("mra.periodic");
     std::array<int, 3> c_idx;
     std::array<int, 3> n_bxs;
     std::array<double, 3> sf;
