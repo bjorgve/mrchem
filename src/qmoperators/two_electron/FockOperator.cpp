@@ -147,8 +147,8 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const ComplexMatrix &F) {
     }
 
     // Orbital energies
-    for (int i = 0; i < Phi.size(); i++) {
-        auto occ = (double)Phi[i].occ();
+    for (auto i = 0; i < Phi.size(); i++) {
+        auto occ = static_cast<double>(Phi[i].occ());
         E_orb += occ * F(i, i).real();
     }
 
@@ -160,11 +160,18 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const ComplexMatrix &F) {
     if (this->xc != nullptr) E_xc2 = this->xc->trace(Phi).real();
     if (this->ext != nullptr) E_ext = this->ext->trace(Phi).real();
 
+    println(0, "E_en " << E_en);
+    println(0, "E_ee " << E_ee);
+    println(0, "E_x " << E_xc);
+    println(0, "E_xc2 " << E_xc2);
+    println(0, "E_ext " << E_ext);
     auto E_eex = E_ee + E_x;
+    println(0, "E_eex " << E_eex);
     auto E_orbxc2 = E_orb - E_xc2;
     E_kin = E_orbxc2 - 2.0 * E_eex - E_en - E_ext;
+    println(0, "E_kin " << E_kin);
     E_el = E_orbxc2 - E_eex + E_xc;
-
+    println(0, "E_el " << E_el);
     return SCFEnergy{E_nuc, E_el, E_orb, E_kin, E_en, E_ee, E_xc, E_x, E_nex, E_ext};
 }
 
