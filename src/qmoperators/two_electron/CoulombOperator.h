@@ -1,9 +1,13 @@
 #pragma once
 
+#include "MRCPP/Printer"
+
 #include "CoulombPotential.h"
 #include "CoulombPotentialD1.h"
 #include "CoulombPotentialD2.h"
 #include "HartreePotential.h"
+#include "chemistry/chemistry_utils.h"
+#include "qmfunctions/qmfunction_utils.h"
 #include "qmoperators/RankZeroTensorOperator.h"
 
 /** @class CoulombOperator
@@ -43,13 +47,14 @@ public:
         J = potential;
     }
 
-    CoulombOperator(std::shared_ptr<mrcpp::PoissonOperator> P,
-                    std::shared_ptr<OrbitalVector> Phi, const Nuclei &nucs) {
+    CoulombOperator(std::shared_ptr<mrcpp::PoissonOperator> P, std::shared_ptr<OrbitalVector> Phi, const Nuclei &nucs) {
 
-        potential = std::make_shared<HartreePotential>(P, Phi, nucs);
-        RankZeroTensorOperator &J = (*this);
+        println(0, "Couloumb nuclei size prior to init " << nucs.size()) potential =
+            std::make_shared<HartreePotential>(P, Phi, nucs);
+        println(0, "Couloumb nuclei size " << (*potential).getNuclei().size()) RankZeroTensorOperator &J = (*this);
         J = potential;
     }
+    const Nuclei &getNuclei() const { return this->potential->getNuclei(); }
 
     ~CoulombOperator() override = default;
 
@@ -57,6 +62,19 @@ public:
     auto &getDensity() { return this->potential->getDensity(); }
 
     ComplexDouble trace(OrbitalVector &Phi) { return 0.5 * RankZeroTensorOperator::trace(Phi); }
+    ComplexDouble trace(const Nuclei &nucs) {
+        QMFunction &V = *this->potential;
+        double nuc_prec = 10e-4; // this->potential->getNucPrec();
+        Density rho_nuc(false);
+        rho_nuc = chemistry::compute_nuclear_density(this->potential->prec(), nucs, 1.0 / nuc_prec);
+        println(0, "Colomb trace, rho_nuc.integrate() " << rho_nuc.integrate())
+                println(0, "Colomb trace, rho_nuc.norm() " << rho_nuc.norm())
+                    println(0, "Colomb trace, V.integrate() " << V.integrate())
+                        println(0, "Colomb trace, V.norm() " << V.norm())
+            // println(0, qmfunction::dot(V, rho_nuc).real().integrate())
+            return 0.5 *
+            qmfunction::dot(V, rho_nuc);
+    }
 
 private:
     std::shared_ptr<CoulombPotential> potential{nullptr};

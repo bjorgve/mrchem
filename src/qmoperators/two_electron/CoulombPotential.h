@@ -1,5 +1,6 @@
 #pragma once
 
+#include "chemistry/Nucleus.h"
 #include "qmfunctions/Density.h"
 #include "qmoperators/one_electron/QMPotential.h"
 
@@ -33,6 +34,7 @@ public:
 protected:
     bool local;      ///< Compute local (MPI) potential before broadcast
     Density density; ///< Ground-state electron density
+    Nuclei nuclei{};
 
     std::shared_ptr<OrbitalVector> orbitals; ///< Unperturbed orbitals defining the ground-state electron density
     std::shared_ptr<mrcpp::PoissonOperator> poisson; ///< Operator used to compute the potential
@@ -43,6 +45,7 @@ protected:
     bool hasDensity() const { return (this->density.squaredNorm() < 0.0) ? false : true; }
     bool useLocal() const { return this->local; }
     bool useGlobal() const { return not(this->local); }
+    const Nuclei &getNuclei() const { return this->nuclei; }
 
     void setup(double prec) override;
     void clear() override;

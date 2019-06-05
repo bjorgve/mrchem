@@ -138,12 +138,18 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const ComplexMatrix &F) {
 
     // Nuclear part
     if (this->nuc != nullptr) {
-        Nuclei &nucs = this->nuc->getNuclei();
+        const Nuclei &nucs = this->nuc->getNuclei();
         E_nuc = chemistry::compute_nuclear_repulsion(nucs);
         if (this->ext != nullptr) {
             E_nex = this->ext->trace(nucs).real();
             E_nuc += E_nex;
         }
+    } else if (this->coul != nullptr) {
+        // double nuc_prec = this->coul->getNuclei()->getPre;
+        const Nuclei &nucs = this->coul->getNuclei();
+        E_nuc = 0.5 * chemistry::compute_nuclear_self_repulsion(nucs, 1.0e4);
+        println(0, "E_nuc ---->>>> " << E_nuc);
+        E_en = this->coul->trace(nucs).real();
     }
 
     // Orbital energies
@@ -160,18 +166,33 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const ComplexMatrix &F) {
     if (this->xc != nullptr) E_xc2 = this->xc->trace(Phi).real();
     if (this->ext != nullptr) E_ext = this->ext->trace(Phi).real();
 
-    println(0, "E_en " << E_en);
-    println(0, "E_ee " << E_ee);
-    println(0, "E_x " << E_xc);
-    println(0, "E_xc2 " << E_xc2);
-    println(0, "E_ext " << E_ext);
     auto E_eex = E_ee + E_x;
-    println(0, "E_eex " << E_eex);
     auto E_orbxc2 = E_orb - E_xc2;
     E_kin = E_orbxc2 - 2.0 * E_eex - E_en - E_ext;
-    println(0, "E_kin " << E_kin);
     E_el = E_orbxc2 - E_eex + E_xc;
-    println(0, "E_el " << E_el);
+
+    println(0, "*********************************");
+    println(0, "*********************************");
+    println(0, "*********************************");
+    println(0, "*********************************");
+    println(0, "E_nuc " << E_nuc);
+    println(0, "E_orb " << E_orb);
+    println(0, "E_en " << E_en);
+    println(0, "E_ee " << E_ee);
+    // println(0, "E_x " << E_xc);
+    // println(0, "E_xc " << E_xc);
+    // println(0, "E_xc2 " << E_xc2);
+    // println(0, "E_ext " << E_ext);
+    // println(0, "E_eex " << E_eex);
+    // println(0, "E_orbxc2 " << E_orbxc2);
+    // println(0, "E_kin " << E_kin);
+    // println(0, "E_el " << E_el);
+    println(0, "*********************************");
+    double E_tot = E_orb - E_en - E_ee - E_nuc + E_xc - E_xc2;
+    println(0, "TOTAL ENERGY: " << E_tot);
+    println(0, "*********************************");
+    println(0, "*********************************");
+    println(0, "*********************************");
     return SCFEnergy{E_nuc, E_el, E_orb, E_kin, E_en, E_ee, E_xc, E_x, E_nex, E_ext};
 }
 

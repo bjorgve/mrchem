@@ -23,7 +23,7 @@ auto *initialize_world(int min_scale,
                        bool periodic) {
 
     if (periodic) return new BoundingBox<D>(sf, periodic);
-    return new BoundingBox<D>(min_scale, corner, boxes);
+    return new BoundingBox<D>(min_scale, corner, boxes, sf);
 }
 
 void initialize(int argc, char **argv) {
