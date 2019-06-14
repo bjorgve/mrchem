@@ -177,7 +177,6 @@ def setup_keywords(input_dir):
     top.add_kw('energy_unit',           'STR', 'au')
     top.add_kw('printlevel',            'INT', 0)
     top.add_kw('teletype',              'BOOL', False)
-    top.add_kw('mock_periodic',         'BOOL', False)
     # yapf: enable
 
     mpi = getkw.Section('mpi')

@@ -61,7 +61,6 @@ SCFDriver::SCFDriver(Getkw &input) {
     max_scale = MRA->getMaxScale();
     rel_prec = input.get<double>("rel_prec");
     nuc_prec = input.get<double>("nuc_prec");
-    mock_periodic = input.get<bool>("mock_periodic");
 
     gauge = input.getDblVec("mra.gauge_origin");
     center_of_mass = input.get<bool>("mra.center_of_mass");
@@ -307,14 +306,14 @@ void SCFDriver::setup() {
     fock = std::make_shared<FockOperator>(T);
 
     // For non-periodic Hartree, HF and DFT we need the coulomb and nuclear part
-    if ((wf_method == "hartree" or wf_method == "hf" or wf_method == "dft") and not mock_periodic) {
+    if ((wf_method == "hartree" or wf_method == "hf" or wf_method == "dft") and not periodic) {
         J = std::make_shared<CoulombOperator>(P, phi);
         V = std::make_shared<NuclearOperator>(nuclei, nuc_prec);
         fock->getCoulombOperator() = J;
         fock->getNuclearOperator() = V;
     }
     // For periodic Hartree, HF and DFT we need the hartree potential part
-    if ((wf_method == "hartree" or wf_method == "hf" or wf_method == "dft") and mock_periodic) {
+    if ((wf_method == "hartree" or wf_method == "hf" or wf_method == "dft") and periodic) {
         J = std::make_shared<CoulombOperator>(P, phi, nuclei, nuc_prec);
         fock->getCoulombOperator() = J;
     }
