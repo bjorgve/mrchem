@@ -145,10 +145,9 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const ComplexMatrix &F) {
             E_nuc += E_nex;
         }
     } else if (this->coul != nullptr) {
-        // double nuc_prec = this->coul->getNuclei()->getPre;
+        auto nuc_prec = this->coul->getNucPrec();
         const Nuclei &nucs = this->coul->getNuclei();
-        E_nuc = 0.5 * chemistry::compute_nuclear_self_repulsion(nucs, 1.0e4);
-        println(0, "E_nuc ---->>>> " << E_nuc);
+        E_nuc = 0.5 * chemistry::compute_nuclear_self_repulsion(nucs, 1.0 / nuc_prec);
         E_en = this->coul->trace(nucs).real();
     }
 
@@ -170,7 +169,8 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const ComplexMatrix &F) {
     auto E_orbxc2 = E_orb - E_xc2;
     E_kin = E_orbxc2 - 2.0 * E_eex - E_en - E_ext;
     E_el = E_orbxc2 - E_eex + E_xc;
-
+    // println(0, "is this->nuc a nullptr" <<  true << " " << (this->nuc == nullptr) ? true : false );
+    // println(0, "is this->coul a nullptr" <<  true << " " << (this->coul == nullptr) ? true : false );
     println(0, "*********************************");
     println(0, "*********************************");
     println(0, "*********************************");

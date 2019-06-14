@@ -315,8 +315,7 @@ void SCFDriver::setup() {
     }
     // For periodic Hartree, HF and DFT we need the hartree potential part
     if ((wf_method == "hartree" or wf_method == "hf" or wf_method == "dft") and mock_periodic) {
-        println(0, "Driver nuclei.size()" << nuclei.size()) J = std::make_shared<CoulombOperator>(P, phi, nuclei);
-        println(0, "Get nuclei size" << (*J).getNuclei().size());
+        J = std::make_shared<CoulombOperator>(P, phi, nuclei, nuc_prec);
         fock->getCoulombOperator() = J;
     }
     // For HF we need the full HF exchange
