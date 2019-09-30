@@ -49,6 +49,10 @@ void HartreePotential::setupGlobalDensity(double prec) {
     density::compute(prec, rho_el, Phi, DENSITY::Total);
     auto rho_nuc = chemistry::compute_nuclear_density(this->apply_prec, this->nuclei, 1.0 / this->nuc_prec);
     qmfunction::add(rho, 1.0, rho_el, -1.0, rho_nuc, -1.0);
+    println(0, "rho_nuc " << rho_nuc.real());
+    println(0, "rho_el " << rho_el.real());
+    println(0, "rho_el.integrate() " << rho_el.integrate());
+    println(0, "rho_nuc.integrate() " << rho_nuc.integrate());
     if (std::norm(rho.integrate()) > this->apply_prec) MSG_FATAL("Non-zero net charge on unit cell");
 
     timer.stop();

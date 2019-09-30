@@ -158,6 +158,10 @@ OrbitalVector initial_guess::gto::project_mo(double prec,
         if (mpi::my_orb(Phi[i])) {
             GaussExp<3> mo_i = gto_exp.getMO(i, MO.transpose());
             Phi[i].alloc(NUMBER::Real);
+            auto periodic = (*MRA).getWorldBox().isPeriodic();
+            auto period = (*MRA).getWorldBox().getScalingFactor();
+            mo_i.makePeriodic(period);
+            println(0, "is Periodic super true?" << periodic)
             mrcpp::project(prec, Phi[i].real(), mo_i);
         }
         printout(0, std::setw(5) << i);

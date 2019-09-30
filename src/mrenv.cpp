@@ -64,6 +64,7 @@ void initialize(int argc, char **argv) {
     vector<int> boxes = input.getIntVec("mra.boxes");
     auto scaling_factor = input.getDblVec("mra.scaling_factor");
     auto periodic = input.get<bool>("mra.periodic");
+    auto periodic_operator_reach = input.get<int>("mra.periodic_operator_reach");
     std::array<int, 3> c_idx;
     std::array<int, 3> n_bxs;
     std::array<double, 3> sf;
@@ -85,6 +86,9 @@ void initialize(int argc, char **argv) {
     if (btype == "i") {
         InterpolatingBasis basis(order);
         MRA = new MultiResolutionAnalysis<3>(*world, basis, max_depth);
+        println(0, "My captain my captain")
+        MRA->setPeriodicOperatorReach(periodic_operator_reach);
+        println(0, "My captain my captain do I still follow you?")
     } else if (btype == "l") {
         LegendreBasis basis(order);
         MRA = new MultiResolutionAnalysis<3>(*world, basis, max_depth);

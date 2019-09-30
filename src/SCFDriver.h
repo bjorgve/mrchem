@@ -102,6 +102,7 @@ protected:
     bool center_of_mass;
     bool center_of_charge;
     bool periodic;
+    int  periodic_operator_reach;
     std::vector<double> gauge;
 
     // Derivative operators

@@ -25,6 +25,7 @@
 
 #include "MRCPP/Gaussians"
 #include "MRCPP/Printer"
+#include "MRCPP/Plotter"
 
 #include "Nucleus.h"
 #include "chemistry_utils.h"
@@ -75,8 +76,24 @@ Density chemistry::compute_nuclear_density(double prec, const Nuclei &nucs, doub
         auto gauss_f = mrcpp::GaussFunc<3>(alpha, beta * Z_i, R_i);
         gauss.append(gauss_f);
     }
+    auto scaling_factor = (*MRA).getWorldBox().getScalingFactor();
+    gauss.makePeriodic(scaling_factor);
     Density rho(false);
+
+
+    int nPts = 10000;                                // Number of points
+    double a[3] = {-20.0, 0.0, 0.0};                 // Start point of plot
+    double b[3] = { 20.0, 0.0, 0.0};                 // End point of plot
+
+    mrcpp::Plotter<3> plot;                         // Plotter of 3D functions
+    plot.setNPoints(nPts);                          // Set number of points
+    plot.setRange(a, b);                            // Set plot range
+
     density::compute(prec, rho, gauss);
+    plot.linePlot(rho.real(), "func_tree_periodic_gauss");
+
+
+
     return rho;
 }
 /** @breif computes the nuclear density as a sum of narrow Gaussians */

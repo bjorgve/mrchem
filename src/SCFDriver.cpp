@@ -66,6 +66,7 @@ SCFDriver::SCFDriver(Getkw &input) {
     center_of_mass = input.get<bool>("mra.center_of_mass");
     center_of_charge = input.get<bool>("mra.center_of_charge");
     periodic = input.get<bool>("mra.periodic");
+    periodic_operator_reach = input.get<int>("mra.periodic_operator_reach");
 
     diff_kin = input.get<std::string>("derivatives.kinetic");
     diff_orb = input.get<std::string>("derivatives.h_orb");
