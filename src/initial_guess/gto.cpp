@@ -157,7 +157,15 @@ void initial_guess::gto::project_mo(OrbitalVector &Phi,
         if (mpi::my_orb(Phi[i])) {
             GaussExp<3> mo_i = gto_exp.getMO(i, MO.transpose());
             Phi[i].alloc(NUMBER::Real);
+            auto periodic = (*MRA).getWorldBox().isPeriodic();
+            auto n_stds = (*MRA).getStds();
+            if (periodic) {
+                auto period = (*MRA).getWorldBox().getScalingFactor();
+                mo_i.makePeriodic(period, n_stds);
+            }
+            mrcpp::build_grid(Phi[i].real(), mo_i);
             mrcpp::project(prec, Phi[i].real(), mo_i);
+            Phi[i].real().normalize();
         }
         std::stringstream o_txt;
         o_txt << std::setw(w1 - 1) << i;

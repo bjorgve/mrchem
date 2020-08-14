@@ -53,7 +53,6 @@ bool initial_guess::mw::setup(OrbitalVector &Phi,
                               const std::string &file_a,
                               const std::string &file_b) {
     if (Phi.size() == 0) return false;
-
     mrcpp::print::separator(0, '~');
     print_utils::text(0, "Calculation   ", "Compute initial orbitals");
     print_utils::text(0, "Method        ", "Project MW molecular orbitals");
@@ -76,10 +75,10 @@ bool initial_guess::mw::setup(OrbitalVector &Phi,
     initial_guess::mw::project_mo(Phi, prec, file_p);
     initial_guess::mw::project_mo(Phi_a, prec, file_a);
     initial_guess::mw::project_mo(Phi_b, prec, file_b);
-
     // Collect orbitals into one vector
     for (auto &phi_a : Phi_a) Phi.push_back(phi_a);
     for (auto &phi_b : Phi_b) Phi.push_back(phi_b);
+    orbital::normalize(Phi);
 
     return true;
 }
