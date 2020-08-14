@@ -258,6 +258,7 @@ def write_mra(user_dict, mol_dict):
         max_scale = 30 + min_scale
 
     mra_dict = {
+        "periodic": user_dict["Periodic"]["periodic"],
         "basis_type": user_dict["Basis"]["type"].lower(),
         "basis_order": order,
         "boxes": [2, 2, 2],

@@ -217,6 +217,20 @@ sections:
         default: 'abgv_00'
         docstring: |
           Derivative used in paramagnetic spin-orbit operator.
+  - name: Periodic
+    docstring: |
+      Define periodic settings.
+    keywords:
+      - name: periodic
+        type: bool
+        default: false
+        docstring: |
+          Set to true if your system is periodic.
+      - name: period
+        type: List[float]
+        default: [1.0, 1.0, 1.0]
+        docstring: |
+          Set the period of your system.
   - name: Molecule
     docstring: |
       Define molecule.
