@@ -54,17 +54,20 @@ User input reference
  :Precisions: Define specific precision parameters.
 
   :red:`Keywords`
-   :exchange_prec: Precision parameter used in construction of Exchange operators. Negative value means it will follow the dynamic precision in SCF.
+   :exp_prec: Precision parameter used in the far field potential
 
     **Type** ``float``
 
-    **Default** ``-1.0``
+    **Default** ``2.0``
+
+    **Predicates**
+      - ``1.0 < value < 1.0e10``
 
    :helmholtz_prec: Precision parameter used in construction of Helmholtz operators. Negative value means it will follow the dynamic precision in SCF.
 
     **Type** ``float``
 
-    **Default** ``-1.0``
+    **Default** ``user['world_prec']``
 
    :poisson_prec: Precision parameter used in construction of Poisson operators.
 
@@ -279,6 +282,12 @@ User input reference
 
     **Default** ``[1.0, 1.0, 1.0]``
 
+   :rc: Set rc. 
+
+    **Type** ``float``
+
+    **Default** ``1.0``
+
    :operator_cells: Set the number of neighboor cells for the operators to reach.
 
     **Type** ``int``
@@ -366,7 +375,7 @@ User input reference
 
     **Type** ``bool``
 
-    **Default** ``True``
+    **Default** ``False``
 
    :quadrupole_moment: Compute quadrupole moment. Note: Gauge origin dependent, should be used with ``translate = true`` in Molecule.
 
@@ -387,12 +396,6 @@ User input reference
     **Default** ``False``
 
    :nmr_shielding: Compute NMR shielding tensor.
-
-    **Type** ``bool``
-
-    **Default** ``False``
-
-   :geometric_derivative: Compute geometric derivative.
 
     **Type** ``bool``
 

@@ -90,7 +90,7 @@ bool initial_guess::sad::setup(OrbitalVector &Phi, double prec, const Nuclei &nu
     auto mrdft_p = xc_factory.build();
 
     KineticOperator T(D_p);
-    NuclearOperator V_nuc(nucs, prec);
+    NuclearOperator V_nuc(nucs, prec, -1.0, false);
     CoulombOperator J(P_p);
     XCOperator XC(mrdft_p);
     RankZeroTensorOperator V = V_nuc + J + XC;

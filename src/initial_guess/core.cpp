@@ -104,7 +104,7 @@ bool initial_guess::core::setup(OrbitalVector &Phi, double prec, const Nuclei &n
     t_lap.start();
     auto D_p = std::make_shared<mrcpp::ABGVOperator<3>>(*MRA, 0.5, 0.5);
     KineticOperator T(D_p);
-    NuclearOperator V(nucs, prec);
+    NuclearOperator V(nucs, prec, -1.0, false);
     if (plevel == 1) mrcpp::print::time(1, "Projecting nuclear potential", t_lap);
 
     // Project AO basis of hydrogen functions
