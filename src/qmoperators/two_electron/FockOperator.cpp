@@ -3,6 +3,7 @@
 
 #include "CoulombOperator.h"
 #include "ExchangeOperator.h"
+#include "FarFieldOperator.h"
 #include "FockOperator.h"
 #include "XCOperator.h"
 #include "chemistry/chemistry_utils.h"
@@ -20,6 +21,7 @@ using mrcpp::Timer;
 using KineticOperator_p = std::shared_ptr<mrchem::KineticOperator>;
 using NuclearOperator_p = std::shared_ptr<mrchem::NuclearOperator>;
 using CoulombOperator_p = std::shared_ptr<mrchem::CoulombOperator>;
+using FarFieldOperator_p = std::shared_ptr<mrchem::FarFieldOperator>;
 using ExchangeOperator_p = std::shared_ptr<mrchem::ExchangeOperator>;
 using XCOperator_p = std::shared_ptr<mrchem::XCOperator>;
 using ElectricFieldOperator_p = std::shared_ptr<mrchem::ElectricFieldOperator>;
@@ -42,12 +44,14 @@ extern mrcpp::MultiResolutionAnalysis<3> *MRA; // Global MRA
 FockOperator::FockOperator(KineticOperator_p t,
                            NuclearOperator_p v,
                            CoulombOperator_p j,
+                           FarFieldOperator_p f,
                            ExchangeOperator_p k,
                            XCOperator_p xc,
                            ElectricFieldOperator_p ext)
         : kin(t)
         , nuc(v)
         , coul(j)
+        , ff(f)
         , ex(k)
         , xc(xc)
         , ext(ext) {}
@@ -63,6 +67,7 @@ void FockOperator::build(double exx) {
     this->V = RankZeroTensorOperator();
     if (this->nuc != nullptr) this->V += (*this->nuc);
     if (this->coul != nullptr) this->V += (*this->coul);
+    if (this->ff != nullptr) this->V += (*this->ff);
     if (this->ex != nullptr) this->V -= this->exact_exchange * (*this->ex);
     if (this->xc != nullptr) this->V += (*this->xc);
     if (this->ext != nullptr) this->V += (*this->ext);
@@ -138,10 +143,13 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const Nuclei &nucs) {
     double E_xc = 0.0;   // Exchange and Correlation
     double E_eext = 0.0; // External field contribution to the electronic energy
     double E_next = 0.0; // External field contribution to the nuclear energy
+    double E_eeff = 0.0; // Far field contribution to the electronic energy
+    double E_nff = 0.0;  // Far field contribution to the nuclear energy
 
     // Nuclear part
     if (this->nuc != nullptr) E_nn = chemistry::compute_nuclear_repulsion(nucs);
     if (this->ext != nullptr) E_next = -this->ext->trace(nucs).real();
+    if (this->ff != nullptr) E_nff = -this->ff->trace(nucs).real();
 
     // Electronic part
     if (this->kin != nullptr) E_kin = this->kin->trace(Phi).real();
@@ -150,10 +158,11 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const Nuclei &nucs) {
     if (this->ex != nullptr) E_x = -this->exact_exchange * this->ex->trace(Phi).real();
     if (this->xc != nullptr) E_xc = this->xc->getEnergy();
     if (this->ext != nullptr) E_eext = this->ext->trace(Phi).real();
+    if (this->ff != nullptr) E_eeff = this->ff->trace(Phi).real();
     mrcpp::print::footer(2, t_tot, 2);
     if (plevel == 1) mrcpp::print::time(1, "Computing molecular energy", t_tot);
 
-    return SCFEnergy{E_kin, E_nn, E_en, E_ee, E_x, E_xc, E_next, E_eext};
+    return SCFEnergy{E_kin, E_nn, E_en, E_ee, E_x, E_xc, E_next, E_eext, E_nff, E_eeff};
 }
 
 ComplexMatrix FockOperator::operator()(OrbitalVector &bra, OrbitalVector &ket) {

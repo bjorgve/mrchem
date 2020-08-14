@@ -264,7 +264,10 @@ def write_mra(user_dict, mol_dict):
         "boxes": [2, 2, 2],
         "corner": [-1, -1, -1],
         "min_scale": min_scale,
-        "max_scale": max_scale
+        "max_scale": max_scale,
+        "operator_truncation": user_dict["Periodic"]["operator_truncation"],
+        "operator_scale": user_dict["Periodic"]["operator_scale"],
+        "scaling_factor": user_dict["Periodic"]["period"]
     }
     return mra_dict
 
@@ -386,6 +389,7 @@ def write_scf_fock(user_dict, mol_dict, wf_method, dft_funcs):
     fock_dict["nuclear_operator"] = {
         "proj_prec": user_dict["Precisions"]["nuclear_prec"],
         "smooth_prec": user_dict["Precisions"]["nuclear_prec"],
+        "exp_prec": user_dict["Precisions"]["exp_prec"],
         "shared_memory": user_dict["MPI"]["share_nuclear_potential"]
     }
 

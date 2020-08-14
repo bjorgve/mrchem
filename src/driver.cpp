@@ -52,6 +52,7 @@
 #include "qmoperators/one_electron/NuclearOperator.h"
 #include "qmoperators/two_electron/CoulombOperator.h"
 #include "qmoperators/two_electron/ExchangeOperator.h"
+#include "qmoperators/two_electron/FarFieldOperator.h"
 #include "qmoperators/two_electron/FockOperator.h"
 #include "qmoperators/two_electron/XCOperator.h"
 
@@ -905,6 +906,17 @@ void driver::build_fock_operator(const json &json_fock, Molecule &mol, FockOpera
         } else {
             MSG_ABORT("Invalid perturbation order");
         }
+    }
+    ///////////////////////////////////////////////////////////
+    //////////////////   Far-field Operator   /////////////////
+    ///////////////////////////////////////////////////////////
+    auto periodic = (*MRA).getWorldBox().isPeriodic();
+    if (periodic) {
+        auto poisson_prec = json_fock["coulomb_operator"]["poisson_prec"];
+        auto exp_prec = json_fock["nuclear_operator"]["exp_prec"];
+        auto P_p = std::make_shared<PoissonOperator>(*MRA, poisson_prec);
+        auto V_ff = std::make_shared<FarFieldOperator>(P_p, Phi_p, nuclei, exp_prec);
+        F.getFarFieldOperator() = V_ff;
     }
     ///////////////////////////////////////////////////////////
     ////////////////////   XC Operator   //////////////////////
