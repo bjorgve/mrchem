@@ -22,8 +22,9 @@ public:
                     double proj_prec,
                     double smooth_prec = -1.0,
                     double rc = 1.0,
-                    bool mpi_share = false) {
-        r_m1 = std::make_shared<SmearedNuclearPotential>(nucs, proj_prec, smooth_prec, rc, mpi_share);
+                    bool mpi_share = false,
+                    std::shared_ptr<mrchem::OrbitalVector> Phi = nullptr) {
+        r_m1 = std::make_shared<SmearedNuclearPotential>(nucs, proj_prec, smooth_prec, rc, mpi_share, Phi);
 
         // Invoke operator= to assign *this operator
         RankZeroTensorOperator &v = (*this);

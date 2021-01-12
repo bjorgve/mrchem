@@ -13,10 +13,14 @@ public:
     void setup(double prec) override { setApplyPrec(prec); }
     void clear() override { clearApplyPrec(); }
 
-private:
+// private:
     NuclearFunction func;
 
     void allreducePotential(double prec, QMFunction &V_loc);
+
+    Nuclei nucs;
+    double proj_prec;
+    double smooth_prec;
 };
 
 } // namespace mrchem

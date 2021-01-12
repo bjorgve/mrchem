@@ -423,7 +423,9 @@ void driver::scf::calc_properties(const json &json_prop, Molecule &mol) {
             const auto &id = item.key();
             const auto &prec = item.value()["precision"];
             const auto &oper_name = item.value()["operator"];
-            auto h = driver::get_operator<3>(oper_name, item.value());
+            // auto h = driver::get_operator<3>(oper_name, item.value());
+
+            auto h = H_E_dip({0.0, 0.0, 0.0});
             h.setup(prec);
             DipoleMoment &mu = mol.getDipoleMoment(id);
             if ((*MRA).getWorldBox().isPeriodic()) {
@@ -431,8 +433,21 @@ void driver::scf::calc_properties(const json &json_prop, Molecule &mol) {
                 nuclei = periodic::fix_boundary_charge(nuclei, period);
                 nuclei = periodic::periodify_nuclei(nuclei, period, 0.98);
             }
+
+            DoubleVector nuc_dip;
+            DoubleVector dip_el;
+            nuc_dip    = -h.trace(nuclei).real();
             mu.getNuclear() = -h.trace(nuclei).real();
+            dip_el =        h.trace(Phi).real();
             mu.getElectronic() = h.trace(Phi).real();
+            println(0, "-----DRIVER----")
+            println(0, "nuc_dip " << nuc_dip[0] << " " << nuc_dip[1] << " " << nuc_dip[2])
+            println(0, "dip_el " << dip_el[0] << " " << dip_el[1] << " " << dip_el[2])
+            println(0, "dip_el + nuc_dip " << dip_el[0] + nuc_dip[0]  << " " << dip_el[1] + nuc_dip[1]  << " " << dip_el[2] + nuc_dip[2] );
+
+            println(0, "mu.getNuclear() " << mu.getNuclear()[0] << " " << mu.getNuclear()[1] << " " << mu.getNuclear()[2])
+            println(0, "mu.getElectronic() " << mu.getElectronic()[0] << " " << mu.getElectronic()[1] << " " << mu.getElectronic()[2])
+            println(0, "mu.getElectronic() + mu.getNuclear() " << mu.getElectronic()[0] + mu.getNuclear()[0]  << " " << mu.getElectronic()[1] + mu.getNuclear()[1]  << " " << mu.getElectronic()[2] + mu.getNuclear()[2] );
             h.clear();
         }
         mrcpp::print::footer(2, t_lap, 2);
@@ -955,7 +970,7 @@ void driver::build_fock_operator(const json &json_fock, Molecule &mol, FockOpera
         auto smooth_prec = json_fock["nuclear_operator"]["smooth_prec"];
         auto shared_memory = static_cast<bool>(json_fock["nuclear_operator"]["shared_memory"]);
         if (periodic and not far_field) {
-            auto V_p = std::make_shared<NuclearOperator>(nuclei, proj_prec, smooth_prec, rc, shared_memory);
+            auto V_p = std::make_shared<NuclearOperator>(nuclei, proj_prec, smooth_prec, rc, shared_memory, Phi_p);
             F.getNuclearOperator() = V_p;
         } else {
             auto V_p = std::make_shared<NuclearOperator>(nuclei, proj_prec, smooth_prec, shared_memory);

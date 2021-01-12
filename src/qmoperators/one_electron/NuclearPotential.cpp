@@ -27,7 +27,7 @@ namespace mrchem {
  *              MPIs. This is used only for the projection below.
  */
 NuclearPotential::NuclearPotential(const Nuclei &nucs, double proj_prec, double smooth_prec, bool mpi_share)
-        : QMPotential(1, mpi_share) {
+        : proj_prec(proj_prec), smooth_prec(smooth_prec), QMPotential(1, mpi_share) {
     if (proj_prec < 0.0) MSG_ABORT("Negative projection precision");
     if (smooth_prec < 0.0) smooth_prec = proj_prec;
 
