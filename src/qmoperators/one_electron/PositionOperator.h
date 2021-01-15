@@ -3,6 +3,8 @@
 #include "qmoperators/RankOneTensorOperator.h"
 #include "qmoperators/one_electron/QMPotential.h"
 
+#include "qmfunctions/Density.h"
+
 namespace mrchem {
 
 class PositionPotential final : public QMPotential {
@@ -32,6 +34,8 @@ public:
         r[1].name() = "r[y]";
         r[2].name() = "r[z]";
     }
+
+    ComplexVector trace(Density rho);
 
 protected:
     std::shared_ptr<PositionPotential> r_x{nullptr};
