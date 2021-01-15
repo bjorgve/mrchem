@@ -144,6 +144,7 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const Nuclei &nucs) {
     double E_next = 0.0; // External field contribution to the nuclear energy
     double E_eeff = 0.0; // Far field contribution to the electronic energy
     double E_nff = 0.0;  // Far field contribution to the nuclear energy
+    double E_en_hack = 0.0;  // Far field contribution to the nuclear energy
 
     //// PERIODIC ENERGIES ////
     double E_se = 0.0;
@@ -157,6 +158,9 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const Nuclei &nucs) {
     // Electronic part
     if (this->kin != nullptr) E_kin = this->kin->trace(Phi).real();
     if (this->nuc != nullptr) E_en = this->nuc->trace(Phi).real();
+    if (this->nuc == nullptr) println(0, "nullpointer fucker")
+    if (this->nuc != nullptr) println(0, "ikke nullpointer fucker")
+    println(0, "her da?")
     if (this->coul != nullptr) E_ee = 0.5 * this->coul->trace(Phi).real();
     if (this->ex != nullptr) E_x = -this->exact_exchange * this->ex->trace(Phi).real();
     if (this->xc != nullptr) E_xc = this->xc->getEnergy();
@@ -164,12 +168,38 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const Nuclei &nucs) {
     if (this->ff != nullptr) E_eeff = this->ff->trace(Phi).real();
 
     if (this->coul->getPotential()->getRc() > 0.0) {
+        RankZeroTensorOperator hack;
+        hack += this->nuc->getCorrection();
+        // if (this->nuc != nullptr) E_en_hack = 0.5*hack.trace(Phi).real();
+        if (this->nuc != nullptr) E_en_hack = hack.trace(Phi).real();
         E_nn = 0.0;
         E_se = -0.5 * mrcpp::dot<3>(this->coul->getPotential()->getBSmear().real(), this->coul->getPotential()->real());
         auto rc = this->coul->getPotential()->getRc();
+        rc = rc*0.1;
         if (rc <= 0.0) MSG_ABORT("RC has to be positive");
         auto Ig = 10976.0 / (17875.0 * rc);
+        println(0, "E_en_hack " << E_en_hack)
+        // E_en -= 2.0*E_en_hack;
         for (auto &nuc : nucs) { E_ncor += 0.5 * nuc.getCharge() * nuc.getCharge() * (Ig - 12.0 / (5.0 * rc)); }
+
+        auto dip_oper = H_E_dip({0.0, 0.0, 0.0});
+        dip_oper.setup(1.0e-6);
+        DoubleVector nuc_dip = -dip_oper.trace(nucs).real();
+        DoubleVector dip_el = dip_oper.trace(Phi).real();
+        DoubleVector tot_dip = nuc_dip + dip_el;
+
+        auto new_charge = tot_dip[2]/8.0;
+
+        auto rc_tmp = 0.05;
+
+        mrcpp::Coord<3> pos_coord{0.0, 0.0, 4.};
+        mrcpp::Coord<3> neg_coord{0.0, 0.0, -4.};
+        Ig = 10976.0 / (17875.0 * rc_tmp);
+
+        // dip_oper.clear();
+        // E_ncor += 0.5 * new_charge * new_charge* (Ig - 12.0 / (5.0 * rc_tmp));
+        // E_ncor += 0.5 * new_charge * new_charge* (Ig - 12.0 / (5.0 * rc_tmp));
+
     }
 
     mrcpp::print::footer(2, t_tot, 2);

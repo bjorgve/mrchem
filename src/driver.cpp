@@ -955,7 +955,7 @@ void driver::build_fock_operator(const json &json_fock, Molecule &mol, FockOpera
         auto smooth_prec = json_fock["nuclear_operator"]["smooth_prec"];
         auto shared_memory = static_cast<bool>(json_fock["nuclear_operator"]["shared_memory"]);
         if (periodic and not far_field) {
-            auto V_p = std::make_shared<NuclearOperator>(nuclei, proj_prec, smooth_prec, rc, shared_memory);
+            auto V_p = std::make_shared<NuclearOperator>(nuclei, proj_prec, smooth_prec, rc, shared_memory, Phi_p);
             F.getNuclearOperator() = V_p;
         } else {
             auto V_p = std::make_shared<NuclearOperator>(nuclei, proj_prec, smooth_prec, shared_memory);
