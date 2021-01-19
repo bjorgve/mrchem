@@ -3,8 +3,6 @@
 #include "qmoperators/RankOneTensorOperator.h"
 #include "qmoperators/one_electron/QMPotential.h"
 
-#include "qmfunctions/Density.h"
-
 namespace mrchem {
 
 class PositionPotential final : public QMPotential {

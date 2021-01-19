@@ -170,6 +170,22 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const Nuclei &nucs) {
         if (rc <= 0.0) MSG_ABORT("RC has to be positive");
         auto Ig = 10976.0 / (17875.0 * rc);
         for (auto &nuc : nucs) { E_ncor += 0.5 * nuc.getCharge() * nuc.getCharge() * (Ig - 12.0 / (5.0 * rc)); }
+
+        auto dip_oper = H_E_dip({0.0, 0.0, 0.0});
+        dip_oper.setup(1.0e-6);
+        DoubleVector nuc_dip = -dip_oper.trace(nucs).real();
+        DoubleVector dip_el = dip_oper.trace(Phi).real();
+        DoubleVector tot_dip = nuc_dip + dip_el;
+        println(0, "dip_el nuc" << dip_el[0] << " " << dip_el[1] << " " << dip_el[2])
+        dip_oper.clear();
+        auto new_charge = tot_dip[2]/8.0;
+        // Check RC TMP
+	auto E_ncor_tmp = 0.0;
+        E_ncor_tmp += new_charge * new_charge * (Ig - 12.0 / (5.0 * rc));
+        E_ncor_tmp += new_charge * new_charge * (Ig - 12.0 / (5.0 * rc));
+	println(0, "E_ncor_tmp " <<  E_ncor_tmp);  
+
+
     }
 
     mrcpp::print::footer(2, t_tot, 2);

@@ -2,7 +2,7 @@
  * MRChem, a numerical real-space code for molecular electronic structure
  * calculations within the self-consistent field (SCF) approximations of quantum
  * chemistry (Hartree-Fock and Density Functional Theory).
- * Copyright (C) 2020 Stig Rune Jensen, Luca Frediani, Peter Wind and contributors.
+ * Copyright (C) 2021 Stig Rune Jensen, Luca Frediani, Peter Wind and contributors.
  *
  * This file is part of MRChem.
  *
@@ -124,23 +124,24 @@ bool initial_guess::mw::project_mo(OrbitalVector &Phi, double prec, const std::s
                 Phi[i].alloc(NUMBER::Real);
                 // Refine to get accurate function values
                 mrcpp::refine_grid(phi_i.real(), 1);
-                if (not periodic) {
+                // if (not periodic) {
                     mrcpp::project<3>(prec, Phi[i].real(), phi_i.real());
-                } else {
-                    // Stop at refinement 2 due to unknown bug
-                    mrcpp::project<3>(prec, Phi[i].real(), phi_i.real(), 2, false, true);
-                }
+                // } else {
+                //     // Stop at refinement 2 due to unknown bug
+                //     mrcpp::project<3>(prec, Phi[i].real(), phi_i.real(), 2, false, true);
+                // }
             }
             if (phi_i.hasImag()) {
                 Phi[i].alloc(NUMBER::Imag);
                 // Refine to get accurate function values
                 mrcpp::refine_grid(phi_i.imag(), 1);
-                if (not periodic) {
+                // if (not periodic) {
+                    // mrcpp::build_grid(Phi[i].imag(), phi_i.imag())
                     mrcpp::project<3>(prec, Phi[i].imag(), phi_i.imag());
-                } else {
-                    // Stop at refinement 2 due to unknown bug
-                    mrcpp::project<3>(prec, Phi[i].imag(), phi_i.imag(), 2, false, true);
-                }
+                // } else {
+                //     // Stop at refinement 2 due to unknown bug
+                    // mrcpp::project<3>(prec, Phi[i].imag(), phi_i.imag(), -1, false, true);
+                // }
             }
             std::stringstream o_txt;
             o_txt << std::setw(w1 - 1) << i;
