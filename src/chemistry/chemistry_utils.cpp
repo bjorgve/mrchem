@@ -161,7 +161,7 @@ Density chemistry::hack_density(double prec, Nuclei nucs, double rc, double peri
     println(0, "--------- RC ---------- " << rc);
 
     auto b_smear = [charges, coords, rc](const mrcpp::Coord<3> &r) -> double {
-        auto rc_tmp = 0.05;
+        auto rc_tmp = rc; //0.05;
         auto g_rc = 0.0;
         for (auto i = 0; i < charges.size(); i++) {
             auto R = math_utils::calc_distance(r, coords[i]);

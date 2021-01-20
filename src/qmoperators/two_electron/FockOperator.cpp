@@ -175,7 +175,7 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const Nuclei &nucs) {
         E_nn = 0.0;
         E_se = -0.5 * mrcpp::dot<3>(this->coul->getPotential()->getBSmear().real(), this->coul->getPotential()->real());
         auto rc = this->coul->getPotential()->getRc();
-        rc = rc*0.1;
+        // rc = rc*0.1;
         if (rc <= 0.0) MSG_ABORT("RC has to be positive");
         auto Ig = 10976.0 / (17875.0 * rc);
         println(0, "E_en_hack " << E_en_hack)
@@ -190,14 +190,14 @@ SCFEnergy FockOperator::trace(OrbitalVector &Phi, const Nuclei &nucs) {
 
         auto new_charge = tot_dip[2]/8.0;
 
-        auto rc_tmp = 0.05;
+        auto rc_tmp = rc;
 
         mrcpp::Coord<3> pos_coord{0.0, 0.0, 4.};
         mrcpp::Coord<3> neg_coord{0.0, 0.0, -4.};
         Ig = 10976.0 / (17875.0 * rc_tmp);
 
-        // dip_oper.clear();
-        // E_ncor += 0.5 * new_charge * new_charge* (Ig - 12.0 / (5.0 * rc_tmp));
+        dip_oper.clear();
+        println(0, 0.5 * new_charge * new_charge* Ig)    //- 12.0 / (5.0 * rc_tmp)));
         // E_ncor += 0.5 * new_charge * new_charge* (Ig - 12.0 / (5.0 * rc_tmp));
 
     }

@@ -67,8 +67,8 @@ void SmearedNuclearPotential::setup(double prec){
     println(0, "dip_el nuc" << dip_el[0] << " " << dip_el[1] << " " << dip_el[2])
     dip_oper.clear();
     auto new_charge = tot_dip[2]/8.0;
-    mrcpp::Coord<3> pos_coord{0.0, 0.0, 4.};
-    mrcpp::Coord<3> neg_coord{0.0, 0.0, -4.};
+    mrcpp::Coord<3> pos_coord{0.0, 0.0, 4.0};
+    mrcpp::Coord<3> neg_coord{0.0, 0.0, -4.0};
     // std::vector<double> charges{+new_charge, -new_charge}; STIG
     std::vector<double> charges{-new_charge, +new_charge}; // Magnar
     std::vector<mrcpp::Coord<3>> coords{pos_coord, neg_coord};
@@ -77,7 +77,7 @@ void SmearedNuclearPotential::setup(double prec){
     std::vector<mrcpp::Coord<3>> neg_coords{};
 
     pos_coords.push_back(pos_coord);
-    pos_coords.push_back(neg_coord);
+    neg_coords.push_back(neg_coord);
 
     // for (auto x  = -15; x < 16; x ++) {
     //     for (auto y = -15; y < 16; y++) {
@@ -135,7 +135,7 @@ void SmearedNuclearPotential::setup(double prec){
         println(2, o_row.str());
     }
     auto V_smear = [nucs, rc, charges, pos_coords, neg_coords](const mrcpp::Coord<3> &r) -> double {
-        auto rc_tmp = rc*0.1;
+        auto rc_tmp = rc;
     // auto V_smear = [nucs, rc](const mrcpp::Coord<3> &r) -> double {
 
         auto v_g = 0.0;
@@ -152,37 +152,36 @@ void SmearedNuclearPotential::setup(double prec){
             v_g += v_i * nuc.getCharge();
         }
 
-        // auto rc_tmp = rc*1.0;
-        //
-        // for (auto i = 0; i < pos_coords.size(); i++) {
-        //     auto R = math_utils::calc_distance(r, pos_coords[i]);
-        //     auto v_i = 0.0;
-        //     if (R <= rc_tmp and R >= 0) {
-        //         v_i = -(9.0 * std::pow(R, 7.0) - 30.0 * std::pow(R, 6.0) * rc_tmp + 28.0 * std::pow(R, 5.0) * rc_tmp * rc_tmp -
-        //                 14.0 * R * R * std::pow(rc_tmp, 5.0) + 12.0 * std::pow(rc_tmp, 7.0)) /
-        //               (5.0 * std::pow(rc_tmp, 8.0));
-        //     } else {
-        //         v_i = -1.0 / R;
-        //     }
-        //     v_g += v_i * charges[1];
-        // }
-        //
-        // for (auto i = 0; i < neg_coords.size(); i++) {
-        //     auto R = math_utils::calc_distance(r, neg_coords[i]);
-        //     auto v_i = 0.0;
-        //     if (R <= rc_tmp and R >= 0) {
-        //         v_i = -(9.0 * std::pow(R, 7.0) - 30.0 * std::pow(R, 6.0) * rc_tmp + 28.0 * std::pow(R, 5.0) * rc_tmp * rc_tmp -
-        //                 14.0 * R * R * std::pow(rc_tmp, 5.0) + 12.0 * std::pow(rc_tmp, 7.0)) /
-        //               (5.0 * std::pow(rc_tmp, 8.0));
-        //     } else {
-        //         v_i = -1.0 / R;
-        //     }
-        //     v_g += v_i * charges[0];
-        // }
+
+        for (auto i = 0; i < pos_coords.size(); i++) {
+            auto R = math_utils::calc_distance(r, pos_coords[i]);
+            auto v_i = 0.0;
+            if (R <= rc_tmp and R >= 0) {
+                v_i = -(9.0 * std::pow(R, 7.0) - 30.0 * std::pow(R, 6.0) * rc_tmp + 28.0 * std::pow(R, 5.0) * rc_tmp * rc_tmp -
+                        14.0 * R * R * std::pow(rc_tmp, 5.0) + 12.0 * std::pow(rc_tmp, 7.0)) /
+                      (5.0 * std::pow(rc_tmp, 8.0));
+            } else {
+                v_i = -1.0 / R;
+            }
+            v_g += v_i * charges[1];
+        }
+
+        for (auto i = 0; i < neg_coords.size(); i++) {
+            auto R = math_utils::calc_distance(r, neg_coords[i]);
+            auto v_i = 0.0;
+            if (R <= rc_tmp and R >= 0) {
+                v_i = -(9.0 * std::pow(R, 7.0) - 30.0 * std::pow(R, 6.0) * rc_tmp + 28.0 * std::pow(R, 5.0) * rc_tmp * rc_tmp -
+                        14.0 * R * R * std::pow(rc_tmp, 5.0) + 12.0 * std::pow(rc_tmp, 7.0)) /
+                      (5.0 * std::pow(rc_tmp, 8.0));
+            } else {
+                v_i = -1.0 / R;
+            }
+            v_g += v_i * charges[0];
+        }
         return v_g;
     };
     auto V_smear_hack = [nucs, rc, charges, pos_coords, neg_coords](const mrcpp::Coord<3> &r) -> double {
-        auto rc_tmp = 0.05;
+        auto rc_tmp = rc; //0.05;
         auto v_g = 0.0;
 
         for (auto i = 0; i < pos_coords.size(); i++) {
@@ -236,7 +235,7 @@ void SmearedNuclearPotential::setup(double prec){
 
     if (not this->hasReal()) this->alloc(NUMBER::Real);
     qmfunction::add(*this, 1.0, V_loc, -1.0, V_smear_loc, -1);
-    // this->add(1.0, *this->corr);
+    // this->add(-1.0, *this->corr);
     t_tot.stop();
     mrcpp::print::separator(2, '-');
     print_utils::qmfunction(2, "Local potential", V_loc, t_loc);

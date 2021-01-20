@@ -958,7 +958,8 @@ void driver::build_fock_operator(const json &json_fock, Molecule &mol, FockOpera
             auto V_p = std::make_shared<NuclearOperator>(nuclei, proj_prec, smooth_prec, rc, shared_memory, Phi_p);
             F.getNuclearOperator() = V_p;
         } else {
-            auto V_p = std::make_shared<NuclearOperator>(nuclei, proj_prec, smooth_prec, shared_memory);
+            auto V_p = std::make_shared<NuclearOperator>(nuclei, proj_prec, smooth_prec, rc, shared_memory, Phi_p);
+            // auto V_p = std::make_shared<NuclearOperator>(nuclei, proj_prec, smooth_prec, shared_memory);
             F.getNuclearOperator() = V_p;
         }
     }
@@ -974,7 +975,8 @@ void driver::build_fock_operator(const json &json_fock, Molecule &mol, FockOpera
             F.getCoulombOperator() = J_p;
         } else {
             if (order == 0) {
-                auto J_p = std::make_shared<CoulombOperator>(P_p, Phi_p, shared_memory);
+                // auto J_p = std::make_shared<CoulombOperator>(P_p, Phi_p, shared_memory);
+                auto J_p = std::make_shared<CoulombOperator>(P_p, Phi_p, nuclei, rc);
                 F.getCoulombOperator() = J_p;
                 if (far_field) F.getCoulombOperator()->getPotential()->setFarField(true);
             } else if (order == 1) {

@@ -49,8 +49,8 @@ void HartreePotential::setupGlobalDensity(double prec) {
     density::compute(prec, rho_el, Phi, DensityType::Total);
     auto period = (*MRA).getWorldBox().getScalingFactor(0);
     this->b_smeared =
-        chemistry::compute_nuclear_density_smeared(this->apply_prec, this->nuclei, this->rc*0.1, period * 2.0);
-        // chemistry::hack_density(this->apply_prec, this->nuclei, this->rc, period * 2.0, Phi);
+        // chemistry::compute_nuclear_density_smeared(this->apply_prec, this->nuclei, this->rc, period * 2.0);
+        chemistry::hack_density(this->apply_prec, this->nuclei, this->rc, period * 2.0, Phi);
     qmfunction::add(rho, 1.0, rho_el, -1.0, this->b_smeared, -1.0);
     if (std::norm(rho.integrate()) > this->apply_prec) MSG_ABORT("Non-zero net charge on unit cell");
     auto dip_oper = PositionOperator({0.0, 0.0, 0.0});
