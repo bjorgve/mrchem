@@ -45,14 +45,24 @@ void HartreePotential::setupGlobalDensity(double prec) {
     Density &rho = this->density;
 
     Timer timer;
-    Density rho_el(false);
-    density::compute(prec, rho_el, Phi, DensityType::Total);
+    // Density rho_el(false);
+    density::compute(prec, this->rho_el, Phi, DensityType::Total);
     auto period = (*MRA).getWorldBox().getScalingFactor(0);
     this->b_smeared =
-        // chemistry::compute_nuclear_density_smeared(this->apply_prec, this->nuclei, this->rc, period * 2.0);
-        chemistry::hack_density(this->apply_prec, this->nuclei, this->rc, period * 2.0, Phi);
-    qmfunction::add(rho, 1.0, rho_el, -1.0, this->b_smeared, -1.0);
-    if (std::norm(rho.integrate()) > this->apply_prec) MSG_ABORT("Non-zero net charge on unit cell");
+        chemistry::compute_nuclear_density_smeared(this->apply_prec, this->nuclei, this->rc, period * 2.0);
+    this->b_smeared.real().rescale(0.0);
+        //chemistry::hack_density(this->apply_prec, this->nuclei, this->rc, period * 2.0, Phi);
+    this->b_corr = chemistry::calc_bcorr(this->apply_prec, this->nuclei, this->rc, period * 2.0, Phi);
+    // this->b_corr.real().rescale(0.0);
+
+    Density rho_tree(false);
+    if (not rho_tree.hasReal()) rho_tree.alloc(NUMBER::Real);
+    qmfunction::add(rho_tree, 1.0, this->b_smeared, 1.0, this->b_corr, -1.0);
+
+    qmfunction::add(rho, 1.0, this->rho_el, 1.0, rho_tree, -1.0);
+    println(0, "rho_el.int " << this->rho_el.integrate())
+    println(0, "rho_tree.int " << rho_tree.integrate())
+    // if (std::norm(rho.integrate()) > this->apply_prec) MSG_ABORT("Non-zero net charge on unit cell");
     auto dip_oper = PositionOperator({0.0, 0.0, 0.0});
     dip_oper.setup(prec);
     auto mu = dip_oper.trace(rho);

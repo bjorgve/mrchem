@@ -21,8 +21,11 @@ public:
     void clear() override { clearApplyPrec(); }
 
     std::shared_ptr<QMPotential> getCorrection() override { return corr; }
+    std::shared_ptr<QMPotential> getNoCorr() override { return this->no_corr; }
 private:
     std::shared_ptr<QMPotential> corr;
+    std::shared_ptr<QMPotential> no_corr;
+
     NuclearFunction func;
     Nuclei nucs;
     double proj_prec;

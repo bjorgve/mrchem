@@ -36,6 +36,7 @@ double get_total_charge(const Nuclei &nucs);
 Density compute_nuclear_density(double prec, const Nuclei &nucs, double alpha);
 double compute_nuclear_self_repulsion(const Nuclei &nucs, double alpha);
 Density compute_nuclear_density_smeared(double prec, Nuclei nucs, double rc, double period);
+Density calc_bcorr(double prec, Nuclei nucs, double rc, double period, OrbitalVector Phi);
 Density hack_density(double prec, Nuclei nucs, double rc, double period, OrbitalVector Phi);
 } // namespace chemistry
 } // namespace mrchem

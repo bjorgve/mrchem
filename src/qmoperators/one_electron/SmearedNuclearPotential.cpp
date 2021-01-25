@@ -153,31 +153,32 @@ void SmearedNuclearPotential::setup(double prec){
         }
 
 
-        for (auto i = 0; i < pos_coords.size(); i++) {
-            auto R = math_utils::calc_distance(r, pos_coords[i]);
-            auto v_i = 0.0;
-            if (R <= rc_tmp and R >= 0) {
-                v_i = -(9.0 * std::pow(R, 7.0) - 30.0 * std::pow(R, 6.0) * rc_tmp + 28.0 * std::pow(R, 5.0) * rc_tmp * rc_tmp -
-                        14.0 * R * R * std::pow(rc_tmp, 5.0) + 12.0 * std::pow(rc_tmp, 7.0)) /
-                      (5.0 * std::pow(rc_tmp, 8.0));
-            } else {
-                v_i = -1.0 / R;
-            }
-            v_g += v_i * charges[1];
-        }
+        // for (auto i = 0; i < pos_coords.size(); i++) {
+        //     auto R = math_utils::calc_distance(r, pos_coords[i]);
+        //     auto v_i = 0.0;
+        //     if (R <= rc_tmp and R >= 0) {
+        //         v_i = -(9.0 * std::pow(R, 7.0) - 30.0 * std::pow(R, 6.0) * rc_tmp + 28.0 * std::pow(R, 5.0) * rc_tmp * rc_tmp -
+        //                 14.0 * R * R * std::pow(rc_tmp, 5.0) + 12.0 * std::pow(rc_tmp, 7.0)) /
+        //               (5.0 * std::pow(rc_tmp, 8.0));
+        //     } else {
+        //         v_i = -1.0 / R;
+        //     }
+        //     v_g += v_i * charges[1];
+        // }
+        //
+        // for (auto i = 0; i < neg_coords.size(); i++) {
+        //     auto R = math_utils::calc_distance(r, neg_coords[i]);
+        //     auto v_i = 0.0;
+        //     if (R <= rc_tmp and R >= 0) {
+        //         v_i = -(9.0 * std::pow(R, 7.0) - 30.0 * std::pow(R, 6.0) * rc_tmp + 28.0 * std::pow(R, 5.0) * rc_tmp * rc_tmp -
+        //                 14.0 * R * R * std::pow(rc_tmp, 5.0) + 12.0 * std::pow(rc_tmp, 7.0)) /
+        //               (5.0 * std::pow(rc_tmp, 8.0));
+        //     } else {
+        //         v_i = -1.0 / R;
+        //     }
+        //     v_g += v_i * charges[0];
+        // }
 
-        for (auto i = 0; i < neg_coords.size(); i++) {
-            auto R = math_utils::calc_distance(r, neg_coords[i]);
-            auto v_i = 0.0;
-            if (R <= rc_tmp and R >= 0) {
-                v_i = -(9.0 * std::pow(R, 7.0) - 30.0 * std::pow(R, 6.0) * rc_tmp + 28.0 * std::pow(R, 5.0) * rc_tmp * rc_tmp -
-                        14.0 * R * R * std::pow(rc_tmp, 5.0) + 12.0 * std::pow(rc_tmp, 7.0)) /
-                      (5.0 * std::pow(rc_tmp, 8.0));
-            } else {
-                v_i = -1.0 / R;
-            }
-            v_g += v_i * charges[0];
-        }
         return v_g;
     };
     auto V_smear_hack = [nucs, rc, charges, pos_coords, neg_coords](const mrcpp::Coord<3> &r) -> double {
@@ -226,16 +227,20 @@ void SmearedNuclearPotential::setup(double prec){
 
     Timer t_loc;
     qmfunction::project(V_loc, loc_func, NUMBER::Real, abs_prec);
+    println(0, "V_loc " << V_loc.real().integrate())
     t_loc.stop();
 
     this->corr = std::make_shared<QMPotential>(1);
+    this->no_corr = std::make_shared<QMPotential>(1);
 
     qmfunction::project(V_smear_loc, V_smear, NUMBER::Real, abs_prec);
     qmfunction::project(*this->corr, V_smear_hack, NUMBER::Real, abs_prec);
 
     if (not this->hasReal()) this->alloc(NUMBER::Real);
-    qmfunction::add(*this, 1.0, V_loc, -1.0, V_smear_loc, -1);
-    // this->add(-1.0, *this->corr);
+    qmfunction::add(*this, 1.0, V_loc, -0.0, V_smear_loc, -1);
+    qmfunction::deep_copy(*this->no_corr, *this);
+    // this->corr->rescale(0.0);
+    this->add(-1.0, *this->corr);
     t_tot.stop();
     mrcpp::print::separator(2, '-');
     print_utils::qmfunction(2, "Local potential", V_loc, t_loc);

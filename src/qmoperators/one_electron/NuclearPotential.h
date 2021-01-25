@@ -15,6 +15,7 @@ public:
     void clear() override { clearApplyPrec(); }
 
     virtual std::shared_ptr<QMPotential> getCorrection() { return nullptr; }
+    virtual std::shared_ptr<QMPotential> getNoCorr() { return nullptr; }
 
 protected:
     NuclearFunction func;

@@ -14,11 +14,15 @@ public:
     ~HartreePotential() override = default;
 
     Density &getBSmear() { return this->b_smeared; }
+    Density &getBCorr() { return this->b_corr; }
+    Density &getEl() { return this->rho_el; }
     double getRc() { return this->rc; }
 
 private:
     Nuclei nuclei;
     Density b_smeared{false};
+    Density b_corr{false};
+    Density rho_el{false}; ///< Ground-state electron density
     const double rc;
 
     void setupGlobalDensity(double prec);

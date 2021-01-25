@@ -32,6 +32,8 @@ public:
     }
 
     std::shared_ptr<QMPotential> getCorrection() { return r_m1->getCorrection(); }
+    std::shared_ptr<QMPotential> getNoCorr() { return r_m1->getNoCorr(); }
+    std::shared_ptr<QMPotential> getPotential() { return r_m1; }
 
 private:
     std::shared_ptr<NuclearPotential> r_m1{nullptr};
