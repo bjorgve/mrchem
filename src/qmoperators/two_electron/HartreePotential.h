@@ -26,6 +26,7 @@ private:
     const double rc;
 
     void setupGlobalDensity(double prec);
+    void setupGlobalPotential(double prec);
 };
 
 } // namespace mrchem

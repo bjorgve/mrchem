@@ -92,7 +92,7 @@ Density chemistry::compute_nuclear_density_smeared(double prec, Nuclei nucs, dou
     Density rho(false);
     if (not rho.hasReal()) rho.alloc(NUMBER::Real);
 
-    nucs = periodic::periodify_nuclei(nucs, period);
+    // nucs = periodic::periodify_nuclei(nucs, period);
 
     auto b_smear = [nucs, rc](const mrcpp::Coord<3> &r) -> double {
         auto g_rc = 0.0;
@@ -151,13 +151,18 @@ Density chemistry::calc_bcorr(double prec, Nuclei nucs, double rc, double period
 
     auto new_charge = tot_dip[2]/8.0;
 
-    mrcpp::Coord<3> pos_coord{0.0, 0.0, 4.};
-    mrcpp::Coord<3> neg_coord{0.0, 0.0, -4.};
+    // mrcpp::Coord<3> pos_coord{0.0, 0.0, 4.};
+    // mrcpp::Coord<3> neg_coord{0.0, 0.0, -4.};
 
     dip_oper.clear();
 
-    std::vector<double> charges{-new_charge, new_charge};
-    std::vector<mrcpp::Coord<3>> coords{pos_coord, neg_coord};
+    // std::vector<double> charges{-new_charge, new_charge};
+    // std::vector<mrcpp::Coord<3>> coords{pos_coord, neg_coord};
+    mrcpp::Coord<3> coord{0.0, 0.0, 0.0};
+    std::vector<mrcpp::Coord<3>> coords;
+    coords.push_back(coord);
+    auto charges = std::vector<double> {1.0};
+    rc = 1.0;
 
     auto b_smear = [charges, coords, rc](const mrcpp::Coord<3> &r) -> double {
         auto rc_tmp = rc; //0.05;
@@ -185,12 +190,12 @@ Density chemistry::calc_bcorr(double prec, Nuclei nucs, double rc, double period
     double mu[3] = {0.0, 0.0, 0.0};
 
     mrcpp::GaussExp<3> f_exp;
+    // {
+    //     auto f_func = mrcpp::GaussFunc<3>(beta_1, alpha_1, pos_coord, power);
+    //     f_exp.append(f_func);
+    // }
     {
-        auto f_func = mrcpp::GaussFunc<3>(beta_1, alpha_1, pos_coord, power);
-        f_exp.append(f_func);
-    }
-    {
-        auto f_func = mrcpp::GaussFunc<3>(beta_2, -alpha_2, neg_coord, power);
+        auto f_func = mrcpp::GaussFunc<3>(beta_2, -alpha_2, coord, power);
         f_exp.append(f_func);
     }
 
@@ -211,78 +216,84 @@ Density chemistry::hack_density(double prec, Nuclei nucs, double rc, double peri
     DoubleVector dip_el = dip_oper.trace(Phi).real();
     DoubleVector tot_dip = nuc_dip + dip_el;
 
-    auto new_charge = tot_dip[2]/8.0;
-
-    mrcpp::Coord<3> pos_coord{0.0, 0.0, 4.};
-    mrcpp::Coord<3> neg_coord{0.0, 0.0, -4.};
-
-    println(0, "tot_dip " << tot_dip[0] << " " << tot_dip[1] << " " << tot_dip[2]);
-    dip_oper.clear();
-
-    std::vector<double> charges{-new_charge, new_charge};
-    std::vector<mrcpp::Coord<3>> coords{pos_coord, neg_coord};
-
-
-    println(0, "--------- RC ---------- " << rc);
-
-    auto b_smear = [charges, coords, rc](const mrcpp::Coord<3> &r) -> double {
-        auto rc_tmp = rc; //0.05;
-        auto g_rc = 0.0;
-        for (auto i = 0; i < charges.size(); i++) {
-            auto R = math_utils::calc_distance(r, coords[i]);
-            auto g_i = 0.0;
-            if (R <= rc_tmp and R >= 0) {
-                g_i = -21.0 * std::pow((R - rc_tmp), 3.0) * (6.0 * R * R + 3.0 * R * rc_tmp + rc_tmp * rc_tmp) /
-                      (5.0 * mrcpp::pi * std::pow(rc_tmp, 8.0));
-            }
-            g_rc += g_i * charges[i];
-        }
-        return g_rc;
-    };
-    auto beta_1 = 1.0e3;
-    auto beta_2 = 1.0e3;
-//    println(0, "beta_1 " << beta_1 << " beta_2 " << beta_2);
-
-    auto alpha_1 = std::pow(beta_1 / mrcpp::pi, 3.0 / 2.0);
-    auto alpha_2 = std::pow(beta_2 / mrcpp::pi, 3.0 / 2.0);
-
-    auto power = std::array<int, 3>{0, 0, 0};
-
-    double mu[3] = {0.0, 0.0, 0.0};
-
-    mrcpp::GaussExp<3> f_exp;
-    {
-        auto f_func = mrcpp::GaussFunc<3>(beta_1, alpha_1, pos_coord, power);
-        f_exp.append(f_func);
-    }
-    {
-        auto f_func = mrcpp::GaussFunc<3>(beta_2, -alpha_2, neg_coord, power);
-        f_exp.append(f_func);
-    }
-    Density rho_tree(false);
-    if (not rho_tree.hasReal()) rho_tree.alloc(NUMBER::Real);
-    mrcpp::build_grid<3>(rho_tree.real(), f_exp);
-
-    mrcpp::project<3>(prec, rho_tree.real(), b_smear);
-
-    Density tmp_rho = chemistry::compute_nuclear_density_smeared(prec, nucs, rc, period);
+    // auto new_charge = tot_dip[2]/8.0;
+    //
+    // mrcpp::Coord<3> pos_coord{0.0, 0.0, 4.};
+    // mrcpp::Coord<3> neg_coord{0.0, 0.0, -4.};
+    //
+    // println(0, "tot_dip " << tot_dip[0] << " " << tot_dip[1] << " " << tot_dip[2]);
+    // dip_oper.clear();
+    //
+    // std::vector<double> charges{-new_charge, new_charge};
+    // std::vector<mrcpp::Coord<3>> coords{pos_coord, neg_coord};
 
 
-    mrcpp::add(prec, rho.real(), 1.0, rho_tree.real(), 1.0, tmp_rho.real());
-
-    PositionOperator r({0.0, 0.0, 0.0});
-    r.setup(prec);
-
-    DoubleVector rho_tree_mu = r.trace(rho_tree).real();
-    println(0, "rho_tree_mu " << rho_tree_mu[0] << " " << rho_tree_mu[1] << " " << rho_tree_mu[2])
-
-    DoubleVector tmp_rho_mu = r.trace(tmp_rho).real();
-    println(0, "tmp_rho_mu " << tmp_rho_mu[0] << " " << tmp_rho_mu[1] << " " << tmp_rho_mu[2])
-
-    DoubleVector rho_mu = r.trace(rho).real();
-    println(0, "rho_mu " << rho_mu[0] << " " << rho_mu[1] << " " << rho_mu[2])
-
-    r.clear();
+//     println(0, "--------- RC ---------- " << rc);
+//     mrcpp::Coord<3> coord{0.0, 0.0, 0.0};
+//     std::vector<mrcpp::Coord<3>> coords;
+//     coords.push_back(coord);
+//     auto charges = std::vector<double> {1.0};
+//
+//     rc = 1.0;
+//
+//     auto b_smear = [charges, coords, rc](const mrcpp::Coord<3> &r) -> double {
+//         auto rc_tmp = rc; //0.05;
+//         auto g_rc = 0.0;
+//         for (auto i = 0; i < charges.size(); i++) {
+//             auto R = math_utils::calc_distance<3>(r, coords[i]);
+//             auto g_i = 0.0;
+//             if (R <= rc_tmp and R >= 0) {
+//                 g_i = -21.0 * std::pow((R - rc_tmp), 3.0) * (6.0 * R * R + 3.0 * R * rc_tmp + rc_tmp * rc_tmp) /
+//                       (5.0 * mrcpp::pi * std::pow(rc_tmp, 8.0));
+//             }
+//             g_rc += g_i * charges[i];
+//         }
+//         return g_rc;
+//     };
+//     auto beta_1 = 1.0e3;
+//     auto beta_2 = 1.0e3;
+// //    println(0, "beta_1 " << beta_1 << " beta_2 " << beta_2);
+//
+//     auto alpha_1 = std::pow(beta_1 / mrcpp::pi, 3.0 / 2.0);
+//     auto alpha_2 = std::pow(beta_2 / mrcpp::pi, 3.0 / 2.0);
+//
+//     auto power = std::array<int, 3>{0, 0, 0};
+//
+//     double mu[3] = {0.0, 0.0, 0.0};
+//
+//     mrcpp::GaussExp<3> f_exp;
+//     {
+//         auto f_func = mrcpp::GaussFunc<3>(beta_1, alpha_1, coord, power);
+//         f_exp.append(f_func);
+//     }
+//     // {
+//     //     auto f_func = mrcpp::GaussFunc<3>(beta_2, -alpha_2, neg_coord, power);
+//     //     f_exp.append(f_func);
+//     // }
+//     Density rho_tree(false);
+//     if (not rho_tree.hasReal()) rho_tree.alloc(NUMBER::Real);
+//     mrcpp::build_grid<3>(rho_tree.real(), f_exp);
+//
+//     mrcpp::project<3>(prec, rho_tree.real(), b_smear);
+//
+//     Density tmp_rho = chemistry::compute_nuclear_density_smeared(prec, nucs, rc, period);
+//
+//
+//     mrcpp::add(prec, rho.real(), 1.0, rho_tree.real(), 1.0, tmp_rho.real());
+//
+//     PositionOperator r({0.0, 0.0, 0.0});
+//     r.setup(prec);
+//
+//     DoubleVector rho_tree_mu = r.trace(rho_tree).real();
+//     println(0, "rho_tree_mu " << rho_tree_mu[0] << " " << rho_tree_mu[1] << " " << rho_tree_mu[2])
+//
+//     DoubleVector tmp_rho_mu = r.trace(tmp_rho).real();
+//     println(0, "tmp_rho_mu " << tmp_rho_mu[0] << " " << tmp_rho_mu[1] << " " << tmp_rho_mu[2])
+//
+//     DoubleVector rho_mu = r.trace(rho).real();
+//     println(0, "rho_mu " << rho_mu[0] << " " << rho_mu[1] << " " << rho_mu[2])
+//
+//     r.clear();
 
     return rho;
 }

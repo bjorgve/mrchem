@@ -2,6 +2,7 @@
 
 #include "qmfunctions/Density.h"
 #include "qmoperators/one_electron/QMPotential.h"
+// #include "chemistry/Nucleus.h"
 
 /** @class CoulombPotential
  *
@@ -41,6 +42,7 @@ public:
 
 protected:
     Density density;          ///< Ground-state electron density
+    // Nuclei  nuclei;          ///< Ground-state electron density
     Density b_smeared{false}; ///< Ground-state electron density
     Density b_corr{false}; ///< Ground-state electron density
     Density rho_el{false}; ///< Ground-state electron density
@@ -60,7 +62,8 @@ protected:
     virtual void setupGlobalDensity(double prec) {}
     virtual void setupLocalDensity(double prec) {}
 
-    void setupGlobalPotential(double prec);
+    // virtual void setupGlobalPotential(double prec) {}
+    virtual void setupGlobalPotential(double prec);
     QMFunction setupLocalPotential(double prec);
     void allreducePotential(double prec, QMFunction &V_loc);
 };
